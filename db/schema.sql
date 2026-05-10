@@ -1,4 +1,4 @@
--- Music sIT — Postgres / Supabase schema
+-- Put Me On (putmeon.lol) — Postgres / Supabase schema
 -- Run this in the Supabase SQL editor or via `supabase db push`.
 -- Design choice: artist-side fields are folded into `profiles` (role flips
 -- to 'artist'); a separate `artists` table would duplicate ownership

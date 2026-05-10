@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 130" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Put Me On">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#ffe600"/>
+      <stop offset="35%" stop-color="#ff6a00"/>
+      <stop offset="70%" stop-color="#ff2e93"/>
+      <stop offset="100%" stop-color="#6a00ff"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#00d4ff"/>
+      <stop offset="60%" stop-color="#0096b8"/>
+      <stop offset="100%" stop-color="#ff2e93"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#000" flood-opacity="1"/>
+    </filter>
+  </defs>
+  <g transform="translate(10 0) skewX(-6)" filter="url(#shadow)">
+    <text x="0" y="92" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
+          font-size="86" letter-spacing="-2"
+          fill="url(#g1)" stroke="#1a0033" stroke-width="3" paint-order="stroke fill">put me </text>
+    <text x="365" y="92" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
+          font-size="86" letter-spacing="-2"
+          fill="url(#g2)" stroke="#1a0033" stroke-width="3" paint-order="stroke fill">on</text>
+  </g>
+  <!-- accent star -->
+  <g transform="translate(525 38)">
+    <polygon points="0,-22 6,-7 22,-5 10,5 14,22 0,14 -14,22 -10,5 -22,-5 -6,-7"
+             fill="#caff00" stroke="#1a0033" stroke-width="2"/>
+  </g>
+</svg>

@@ -4,105 +4,198 @@
       <stop offset="0%" stop-color="#ffe8f4"/>
       <stop offset="100%" stop-color="#ffd1ea"/>
     </linearGradient>
-    <linearGradient id="word" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffe600"/>
+    <linearGradient id="word1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#ffe600"/>
       <stop offset="35%" stop-color="#ff6a00"/>
       <stop offset="70%" stop-color="#ff2e93"/>
       <stop offset="100%" stop-color="#6a00ff"/>
     </linearGradient>
     <linearGradient id="word2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="0%"  stop-color="#00d4ff"/>
       <stop offset="60%" stop-color="#0096b8"/>
       <stop offset="100%" stop-color="#ff2e93"/>
     </linearGradient>
     <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
       <circle cx="10" cy="10" r="2" fill="#ffd1ea"/>
     </pattern>
+    <pattern id="topstripe" width="40" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="40" height="50" fill="#ff2e93"/>
+      <rect x="14" width="2" height="50" fill="#000"/>
+      <rect x="14" y="0" width="14" height="50" fill="#00d4ff"/>
+      <rect x="28" width="2" height="50" fill="#000"/>
+    </pattern>
   </defs>
 
-  <!-- background with tiled dots, like the site -->
+  <!-- page background -->
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect width="1200" height="630" fill="url(#dots)"/>
 
-  <!-- top diagonal-stripe bar (matches site's topbar) -->
-  <rect x="0" y="0" width="1200" height="50" fill="#000"/>
+  <!-- ========== fake browser chrome ========== -->
   <g>
-    <rect x="0" y="0" width="1200" height="46" fill="url(#stripes)"/>
-    <pattern id="stripes" width="40" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="40" height="46" fill="#ff2e93"/>
-      <rect x="14" width="2" height="46" fill="#000"/>
-      <rect x="14" y="0" width="14" height="46" fill="#00d4ff"/>
-      <rect x="28" width="2" height="46" fill="#000"/>
-    </pattern>
+    <rect x="0" y="0" width="1200" height="44" fill="#e8e8e8" stroke="#bbb" stroke-width="1"/>
+    <circle cx="22" cy="22" r="6" fill="#ff5f56" stroke="#000" stroke-width="0.5"/>
+    <circle cx="42" cy="22" r="6" fill="#ffbd2e" stroke="#000" stroke-width="0.5"/>
+    <circle cx="62" cy="22" r="6" fill="#27c93f" stroke="#000" stroke-width="0.5"/>
+    <rect x="100" y="10" width="1080" height="24" rx="12" fill="#fff" stroke="#bbb" stroke-width="1"/>
+    <text x="640" y="27" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+          font-size="14" fill="#444">🔒 putmeon.lol</text>
   </g>
 
-  <!-- pixel divider near top -->
-  <g transform="translate(0 50)">
-    <rect x="0" y="0" width="150" height="14" fill="#ff2e93"/>
-    <rect x="150" y="0" width="150" height="14" fill="#00d4ff"/>
-    <rect x="300" y="0" width="150" height="14" fill="#caff00"/>
-    <rect x="450" y="0" width="150" height="14" fill="#ff6a00"/>
-    <rect x="600" y="0" width="150" height="14" fill="#ff2e93"/>
-    <rect x="750" y="0" width="150" height="14" fill="#00d4ff"/>
-    <rect x="900" y="0" width="150" height="14" fill="#caff00"/>
-    <rect x="1050" y="0" width="150" height="14" fill="#ff6a00"/>
-    <line x1="0" y1="0" x2="1200" y2="0" stroke="#000" stroke-width="2"/>
-    <line x1="0" y1="14" x2="1200" y2="14" stroke="#000" stroke-width="2"/>
+  <!-- ========== topbar with diagonal stripes ========== -->
+  <rect x="0" y="44" width="1200" height="76" fill="url(#topstripe)"/>
+  <rect x="0" y="44" width="1200" height="3" fill="#000"/>
+  <rect x="0" y="117" width="1200" height="3" fill="#000"/>
+
+  <!-- nav-wrap (white panel with nav buttons) -->
+  <g transform="translate(620 56)">
+    <rect x="0" y="0" width="510" height="50" fill="#fff" stroke="#7a1a55" stroke-width="2"/>
+    <g font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="13" fill="#1a0033">
+      <rect x="8" y="8" width="56" height="34" fill="#caff00" stroke="#7a1a55" stroke-width="2"/>
+      <text x="36" y="30" text-anchor="middle">home</text>
+      <rect x="68" y="8" width="86" height="34" fill="#fff" stroke="#7a1a55" stroke-width="2"/>
+      <text x="111" y="30" text-anchor="middle">crate digs</text>
+      <rect x="158" y="8" width="106" height="34" fill="#fff" stroke="#7a1a55" stroke-width="2"/>
+      <text x="211" y="30" text-anchor="middle">collab board</text>
+      <rect x="268" y="8" width="86" height="34" fill="#fff" stroke="#7a1a55" stroke-width="2"/>
+      <text x="311" y="30" text-anchor="middle">scene map</text>
+      <rect x="358" y="8" width="84" height="34" fill="#ff2e93" stroke="#000" stroke-width="2"/>
+      <text x="400" y="30" text-anchor="middle" fill="#fff">+ create</text>
+    </g>
   </g>
 
-  <!-- WordArt logo -->
-  <g transform="translate(80 280) skewX(-6)">
-    <text x="0" y="0" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
-          font-size="180" fill="url(#word)" stroke="#1a0033" stroke-width="6"
-          paint-order="stroke fill"
-          style="filter: drop-shadow(6px 6px 0 #000)">music s</text>
-    <text x="640" y="0" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
-          font-size="180" fill="url(#word2)" stroke="#1a0033" stroke-width="6"
-          paint-order="stroke fill"
-          style="filter: drop-shadow(6px 6px 0 #000)">IT</text>
+  <!-- wordart logo on the left -->
+  <g transform="translate(70 60) skewX(-6)" style="filter: drop-shadow(4px 4px 0 #000)">
+    <text x="0" y="50" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
+          font-size="48" fill="url(#word1)" stroke="#1a0033" stroke-width="2"
+          paint-order="stroke fill">put me </text>
+    <text x="195" y="50" font-family="Comic Sans MS, Comic Sans, cursive" font-weight="900"
+          font-size="48" fill="url(#word2)" stroke="#1a0033" stroke-width="2"
+          paint-order="stroke fill">on</text>
   </g>
 
-  <!-- italic tagline -->
-  <text x="80" y="370" font-family="Times New Roman, serif" font-style="italic"
-        font-size="44" fill="#1a0033">where the <tspan fill="#ff2e93">underground</tspan> lives.</text>
-
-  <!-- description line -->
-  <text x="80" y="430" font-family="Trebuchet MS, sans-serif" font-size="26" fill="#6b3a8a">
-    no playlists. no algorithms. real artists, real cities, real tip jars.
+  <!-- ========== marquee ticker ========== -->
+  <rect x="0" y="120" width="1200" height="32" fill="#000"/>
+  <text x="20" y="142" font-family="Courier New, monospace" font-size="14" fill="#caff00">
+    <tspan fill="#ff2e93">★</tspan> NEW DROP <tspan fill="#fff">— saltvane "kelp room"</tspan>
+    <tspan fill="#ff2e93">  ★  </tspan>
+    <tspan>♪</tspan> NOW PLAYING <tspan fill="#fff">— Königswasser "glitchforest 04"</tspan>
+    <tspan fill="#ff2e93">  ★  </tspan>
+    <tspan>✿</tspan> COLLAB <tspan fill="#fff">— mira moss looking for cover artist</tspan>
   </text>
 
-  <!-- bottom badge bar -->
-  <g transform="translate(80 490)">
-    <rect x="0" y="0" width="220" height="44" fill="#000" stroke="#000" stroke-width="2"/>
-    <text x="110" y="29" text-anchor="middle" font-family="Courier New, monospace"
-          font-weight="bold" font-size="16" fill="#caff00">★ 1,284 ARTISTS</text>
-    <rect x="232" y="0" width="180" height="44" fill="#ff2e93" stroke="#000" stroke-width="2"/>
-    <text x="322" y="29" text-anchor="middle" font-family="Courier New, monospace"
-          font-weight="bold" font-size="16" fill="#fff">♫ 47 CITIES</text>
-    <rect x="424" y="0" width="220" height="44" fill="#00d4ff" stroke="#000" stroke-width="2"/>
-    <text x="534" y="29" text-anchor="middle" font-family="Courier New, monospace"
-          font-weight="bold" font-size="16" fill="#001a22">$ TIP JAR OPEN 24/7</text>
-    <rect x="656" y="0" width="180" height="44" fill="#caff00" stroke="#000" stroke-width="2"/>
-    <text x="746" y="29" text-anchor="middle" font-family="Courier New, monospace"
-          font-weight="bold" font-size="16" fill="#1a2200">DIY · UNSIGNED</text>
+  <!-- ========== hero section ========== -->
+  <g transform="translate(40 180)">
+    <!-- left hero panel -->
+    <rect x="0" y="0" width="640" height="280" fill="#fff" stroke="#7a1a55" stroke-width="3"
+          style="filter: drop-shadow(4px 4px 0 #00000033)"/>
+    <text x="22" y="38" font-family="Courier New, monospace" font-size="12" fill="#6b3a8a" letter-spacing="1.4">
+      EST. 2026 ✦ POP. 47 CITIES
+    </text>
+    <text x="22" y="110" font-family="Times New Roman, serif" font-style="italic" font-weight="700"
+          font-size="60" fill="#1a0033">
+      <tspan>find your next</tspan>
+    </text>
+    <text x="22" y="170" font-family="Times New Roman, serif" font-style="italic" font-weight="700"
+          font-size="60" fill="#1a0033">
+      <tspan>favorite </tspan><tspan fill="#ff2e93">artist</tspan><tspan>.</tspan>
+    </text>
+    <text x="22" y="206" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#6b3a8a">
+      no playlists. no algorithms. real artists, real cities, real tip jars.
+    </text>
+    <!-- buttons -->
+    <g transform="translate(22 230)">
+      <rect x="0" y="0" width="180" height="36" fill="#ff2e93" stroke="#7a1a55" stroke-width="2"/>
+      <text x="90" y="24" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+            font-weight="bold" font-size="14" fill="#fff">▶ start digging</text>
+      <rect x="190" y="0" width="180" height="36" fill="#00d4ff" stroke="#7a1a55" stroke-width="2"/>
+      <text x="280" y="24" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+            font-weight="bold" font-size="14" fill="#001a22">✎ find a collab</text>
+      <rect x="380" y="0" width="180" height="36" fill="#fff" stroke="#7a1a55" stroke-width="2"/>
+      <text x="470" y="24" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+            font-weight="bold" font-size="14" fill="#1a0033">+ create profile</text>
+    </g>
   </g>
 
-  <!-- decorative stars -->
-  <g transform="translate(940 200)">
-    <polygon points="0,-90 27,-26 95,-19 41,29 60,98 0,60 -60,98 -41,29 -95,-19 -27,-26"
-             fill="#caff00" stroke="#1a0033" stroke-width="6"/>
-    <polygon points="0,-50 14,-15 50,-10 22,15 32,55 0,32 -32,55 -22,15 -50,-10 -14,-15"
-             transform="translate(120 60)"
-             fill="#ff2e93" stroke="#1a0033" stroke-width="4"/>
-    <polygon points="0,-35 10,-10 35,-7 15,10 22,38 0,22 -22,38 -15,10 -35,-7 -10,-10"
-             transform="translate(50 -100)"
-             fill="#00d4ff" stroke="#1a0033" stroke-width="3"/>
+  <!-- right hero panel: "artist of the day" mock -->
+  <g transform="translate(710 180)">
+    <rect x="0" y="0" width="450" height="280" fill="#fff" stroke="#7a1a55" stroke-width="3"
+          style="filter: drop-shadow(4px 4px 0 #00000033)"/>
+    <!-- panel-h -->
+    <rect x="0" y="0" width="450" height="28" fill="#ff2e93"/>
+    <text x="14" y="20" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="12"
+          fill="#fff" letter-spacing="1.5">★ ARTIST OF THE DAY</text>
+    <!-- album art placeholder (geometric, like the seed art4) -->
+    <g transform="translate(20 50)">
+      <rect width="110" height="110" fill="#caff00" stroke="#000" stroke-width="2"/>
+      <path d="M0 65 Q27 35 55 65 T110 65 V110 H0 Z" fill="#1a0033"/>
+      <circle cx="82" cy="32" r="16" fill="#ff2e93" stroke="#000" stroke-width="2"/>
+    </g>
+    <text x="150" y="76" font-family="Times New Roman, serif" font-weight="700" font-size="22" fill="#1a0033">mira moss</text>
+    <text x="150" y="100" font-family="Courier New, monospace" font-size="12" fill="#6b3a8a">🇨🇦 montréal · art-pop · ★ 441</text>
+    <text x="150" y="138" font-family="Trebuchet MS, sans-serif" font-size="13" fill="#1a0033">
+      <tspan x="150" dy="0">"brittle little songs that feel</tspan>
+      <tspan x="150" dy="16">like a window left open all winter."</tspan>
+    </text>
+    <!-- play / tip buttons -->
+    <g transform="translate(150 180)">
+      <rect width="80" height="32" fill="#ff2e93" stroke="#7a1a55" stroke-width="2"/>
+      <text x="40" y="22" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="13" fill="#fff">▶ play</text>
+      <rect x="90" width="100" height="32" fill="#caff00" stroke="#7a1a55" stroke-width="2"/>
+      <text x="140" y="22" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="13" fill="#1a2200">$ tip $5</text>
+    </g>
+    <!-- spinning CD detail -->
+    <g transform="translate(360 50)">
+      <circle cx="40" cy="40" r="40" fill="#222" stroke="#000" stroke-width="2"/>
+      <circle cx="40" cy="40" r="22" fill="none" stroke="#555" stroke-width="6"/>
+      <circle cx="40" cy="40" r="10" fill="#888"/>
+      <circle cx="40" cy="40" r="3" fill="#000"/>
+    </g>
   </g>
 
-  <!-- bottom URL strip -->
-  <rect x="0" y="588" width="1200" height="42" fill="#000"/>
-  <text x="600" y="617" text-anchor="middle" font-family="Courier New, monospace"
-        font-weight="bold" font-size="18" fill="#caff00" letter-spacing="3">
-    ▶ MUSIC SIT // EST. 2026 // WHERE THE UNDERGROUND LIVES ◀
-  </text>
+  <!-- ========== three artist cards strip ========== -->
+  <g transform="translate(40 490)">
+    <!-- card 1 -->
+    <g>
+      <rect width="360" height="100" fill="#fff" stroke="#7a1a55" stroke-width="2"
+            style="filter: drop-shadow(3px 3px 0 #00000033)"/>
+      <rect x="6" y="6" width="88" height="88" fill="#ff2e93"/>
+      <circle cx="50" cy="50" r="28" fill="#caff00" stroke="#000" stroke-width="2"/>
+      <circle cx="50" cy="50" r="14" fill="#00d4ff" stroke="#000" stroke-width="2"/>
+      <text x="106" y="32" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="16" fill="#1a0033">saltvane</text>
+      <text x="106" y="52" font-family="Courier New, monospace" font-size="10" fill="#6b3a8a">AMBIENT / TAPE · 🇺🇸 OAKLAND</text>
+      <rect x="106" y="62" width="56" height="22" fill="#ff2e93" stroke="#000" stroke-width="1"/>
+      <text x="134" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#fff">▶ play</text>
+      <rect x="166" y="62" width="44" height="22" fill="#caff00" stroke="#000" stroke-width="1"/>
+      <text x="188" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#1a2200">$ tip</text>
+    </g>
+    <!-- card 2 -->
+    <g transform="translate(380 0)">
+      <rect width="360" height="100" fill="#fff" stroke="#7a1a55" stroke-width="2"
+            style="filter: drop-shadow(3px 3px 0 #00000033)"/>
+      <rect x="6" y="6" width="88" height="88" fill="#1a0033"/>
+      <polygon points="50,12 86,82 14,82" fill="#caff00" stroke="#fff" stroke-width="2"/>
+      <circle cx="50" cy="58" r="14" fill="#ff2e93"/>
+      <text x="106" y="32" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="16" fill="#1a0033">Königswasser</text>
+      <text x="106" y="52" font-family="Courier New, monospace" font-size="10" fill="#6b3a8a">GLITCH BREAKS · 🇩🇪 LEIPZIG</text>
+      <rect x="106" y="62" width="56" height="22" fill="#ff2e93" stroke="#000" stroke-width="1"/>
+      <text x="134" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#fff">▶ play</text>
+      <rect x="166" y="62" width="44" height="22" fill="#caff00" stroke="#000" stroke-width="1"/>
+      <text x="188" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#1a2200">$ tip</text>
+    </g>
+    <!-- card 3 -->
+    <g transform="translate(760 0)">
+      <rect width="360" height="100" fill="#fff" stroke="#7a1a55" stroke-width="2"
+            style="filter: drop-shadow(3px 3px 0 #00000033)"/>
+      <rect x="6" y="6" width="88" height="88" fill="#00d4ff"/>
+      <rect x="20" y="20" width="60" height="60" fill="none" stroke="#1a0033" stroke-width="3"/>
+      <rect x="32" y="32" width="36" height="36" fill="#ff6a00"/>
+      <rect x="42" y="42" width="16" height="16" fill="#1a0033"/>
+      <text x="106" y="32" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="16" fill="#1a0033">the bus shelter</text>
+      <text x="106" y="52" font-family="Courier New, monospace" font-size="10" fill="#6b3a8a">FOLK / SHOEGAZE · 🇬🇧 GLASGOW</text>
+      <rect x="106" y="62" width="56" height="22" fill="#ff2e93" stroke="#000" stroke-width="1"/>
+      <text x="134" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#fff">▶ play</text>
+      <rect x="166" y="62" width="44" height="22" fill="#caff00" stroke="#000" stroke-width="1"/>
+      <text x="188" y="78" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-weight="bold" font-size="11" fill="#1a2200">$ tip</text>
+    </g>
+  </g>
 </svg>

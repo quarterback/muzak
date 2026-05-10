@@ -1,4 +1,4 @@
-# Music sIT — Auth & Deployment
+# Put Me On — Auth & Deployment
 
 Two login paths share one Supabase `auth.users` table. Every signed-in user has exactly one row in `public.profiles` (created by trigger).
 
@@ -38,10 +38,10 @@ The file's URL **must equal** the `client_id` value — PDSes fetch it to verify
 
 ```json
 {
-  "client_id": "https://musicsit.app/client-metadata.json",
-  "client_name": "Music sIT",
-  "client_uri": "https://musicsit.app",
-  "redirect_uris": ["https://musicsit.app/auth/atproto/callback"],
+  "client_id": "https://putmeon.lol/client-metadata.json",
+  "client_name": "Put Me On",
+  "client_uri": "https://putmeon.lol",
+  "redirect_uris": ["https://putmeon.lol/auth/atproto/callback"],
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "scope": "atproto transition:generic",

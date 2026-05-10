@@ -1,9 +1,9 @@
-/* Music sIT — vanilla JS app, localStorage-backed.
+/* Put Me On — vanilla JS app, localStorage-backed.
    No build step. Loads d3 + topojson from CDN (see index.html).
    All persisted data lives under STORAGE_KEY in localStorage.
 */
 
-const STORAGE_KEY = "musicSIT_v1";
+const STORAGE_KEY = "putmeon_v1";
 
 /* ── seed data ─────────────────────────────────────────────────────────── */
 const SEED = {
@@ -606,7 +606,7 @@ function sidebarHtml(){
     <div class="bevel panel">
       <div class="panel-h"><span>spread it</span><span class="x">×</span></div>
       <div class="badges">
-        <div class="badge88 a">music sIT<br/>v0.4 beta</div>
+        <div class="badge88 a">put me on<br/>v0.4 beta</div>
         <div class="badge88 b">made by<br/>HUMANS</div>
         <div class="badge88 c">tip jar<br/>OPEN 24/7</div>
         <div class="badge88 d">no algos<br/>only ears</div>
@@ -630,7 +630,7 @@ function renderHome(){
       <div class="bevel hero-l">
         <div class="small upper" style="color:var(--muted)">est. 2026 ✦ pop. ${totalCities} cities</div>
         <h1 style="margin:6px 0 0; font:italic 700 38px/1 'Times New Roman', serif">
-          where the <span style="color:var(--hot)">underground</span> lives.
+          find your next <span style="color:var(--hot)">favorite artist</span>.
         </h1>
         <p class="tag">no playlists. no algorithms. real artists, real cities, real tip jars — clicking around like it's 2003.</p>
         <div class="row">
@@ -1139,7 +1139,7 @@ function renderWelcome(){
       <div class="bevel hero-l">
         <div class="small upper" style="color:var(--muted)">welcome ✦ no algorithms · just ears</div>
         <h1 style="margin:6px 0 0; font:italic 700 38px/1 'Times New Roman', serif">
-          where the <span style="color:var(--hot)">underground</span> lives.
+          find your next <span style="color:var(--hot)">favorite artist</span>.
         </h1>
         <p class="tag">make a profile, paste a stream link, or just dig through ${totalArtists} tiny artists in 47 cities. tip jars deep-link to artists' own apps — money never touches us.</p>
         <div class="row">

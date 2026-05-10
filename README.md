@@ -1,4 +1,6 @@
-# Music sIT
+# Put Me On
+
+> putmeon.lol — find your next favorite artist.
 
 A Y2K / web-1.0 indie-music discovery & collab platform. Tiles, marquees,
 beveled buttons, real artists in real cities, deep-linked tip jars.

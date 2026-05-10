@@ -1,14 +1,15 @@
-// Music sIT — service worker.
+// Put Me On — service worker.
 // Strategy: precache the app shell, network-first for the world-atlas TopoJSON
 // (so map updates flow through), cache-first for everything else same-origin.
 // Bump CACHE_VERSION when shipping changes.
 
-const CACHE_VERSION = "muzak-v2";
+const CACHE_VERSION = "putmeon-v3";
 const SHELL = [
   "./",
   "./index.html",
   "./app.js",
   "./manifest.webmanifest",
+  "./logo.svg",
   "./icon.svg",
   "./icon-maskable.svg",
   "./social-card.svg",

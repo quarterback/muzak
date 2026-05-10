@@ -1,7 +1,8 @@
 {
-  "name": "Music sIT",
-  "short_name": "MusicSIT",
-  "description": "Indie-music discovery & collab. Tiny artists, real cities, deep-linked tip jars.",
+  "name": "Put Me On",
+  "short_name": "PutMeOn",
+  "id": "putmeon.lol",
+  "description": "Find your next favorite artist. Music discovery from cities all over the world — Bandcamp / SoundCloud / YouTube embeds, deep-linked tip jars.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

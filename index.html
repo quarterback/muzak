@@ -2,39 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Music sIT // where the underground lives</title>
+<title>Put Me On // find your next favorite artist</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#ff2e93" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Music sIT" />
+<meta name="apple-mobile-web-app-title" content="Put Me On" />
+<link rel="canonical" href="https://putmeon.lol/" />
 <link rel="manifest" href="./manifest.webmanifest" />
 <link rel="icon" type="image/svg+xml" href="./icon.svg" />
 <link rel="apple-touch-icon" href="./icon.svg" />
 
 <!-- SEO -->
-<meta name="description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears. Bandcamp / SoundCloud / YouTube embeds, deep-linked tip jars, a collab board. A Y2K / web-1.0 indie-music platform." />
-<meta name="keywords" content="indie music, music discovery, bandcamp, soundcloud, underground music, indie artists, music collab, tip jar, Y2K, web 1.0, scene map" />
-<meta name="author" content="Music sIT" />
+<meta name="description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears. Bandcamp / SoundCloud / YouTube embeds, deep-linked tip jars, a collab board. A Y2K / web-1.0 indie-music platform at putmeon.lol." />
+<meta name="keywords" content="indie music, music discovery, bandcamp, soundcloud, underground music, indie artists, music collab, tip jar, Y2K, web 1.0, scene map, putmeon" />
+<meta name="author" content="Put Me On" />
 
 <!-- Open Graph (Facebook, LinkedIn, iMessage, Slack, Discord, Bluesky) -->
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Music sIT" />
-<meta property="og:title" content="Music sIT // where the underground lives" />
+<meta property="og:site_name" content="Put Me On" />
+<meta property="og:title" content="Put Me On // find your next favorite artist" />
 <meta property="og:description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears. A Y2K / web-1.0 indie-music discovery & collab platform." />
-<meta property="og:image" content="./social-card.svg" />
+<meta property="og:url" content="https://putmeon.lol/" />
+<meta property="og:image" content="https://putmeon.lol/social-card.svg" />
 <meta property="og:image:type" content="image/svg+xml" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Music sIT logo in Y2K WordArt over a tiled-pink web-1.0 background, with the tagline 'where the underground lives' and badges reading 1,284 artists, 47 cities, tip jar open 24/7, DIY unsigned." />
+<meta property="og:image:alt" content="Put Me On logo in Y2K WordArt over a tiled-pink web-1.0 background, with the tagline 'find your next favorite artist' and badges reading 1,284 artists, 47 cities, tip jar open 24/7, DIY unsigned." />
 <meta property="og:locale" content="en_US" />
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Music sIT // where the underground lives" />
+<meta name="twitter:title" content="Put Me On // find your next favorite artist" />
 <meta name="twitter:description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears." />
-<meta name="twitter:image" content="./social-card.svg" />
-<meta name="twitter:image:alt" content="Music sIT — Y2K-style indie music discovery platform" />
+<meta name="twitter:image" content="https://putmeon.lol/social-card.svg" />
+<meta name="twitter:image:alt" content="Put Me On — Y2K-style indie music discovery platform" />
 <style>
   /* ── Y2K base ─────────────────────────────────────────────────────────────── */
   :root{
@@ -140,24 +142,11 @@
     cursor:pointer;
   }
 
-  .wordart{
-    font-family: "Comic Sans MS","Comic Sans",cursive;
-    font-weight: 900;
-    font-size: 64px;
-    letter-spacing:-.02em;
-    line-height:.9;
-    background: linear-gradient(180deg, #ffe600 0%, #ff6a00 35%, var(--hot) 70%, #6a00ff 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    -webkit-text-stroke: 2px #1a0033;
-    filter: drop-shadow(3px 3px 0 #000) drop-shadow(0 0 0 #000);
-    transform:skewX(-6deg);
-    display:inline-block;
-    text-decoration:none;
+  .logo-link{
+    display:inline-block; line-height:0; text-decoration:none;
   }
-  .wordart .it{
-    background: linear-gradient(180deg, var(--cool), #0096b8 60%, var(--hot));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    -webkit-text-stroke: 2px #1a0033;
+  .logo-link .logo{
+    display:block; height:78px; width:auto;
   }
 
   .ticker{
@@ -827,7 +816,7 @@
   /* ── responsive ────────────────────────────────────────────────────────── */
   @media (max-width: 1024px){
     .frame{ padding:12px 12px 130px }
-    .wordart{ font-size:48px }
+    .logo-link .logo{ height:62px }
     .topbar{ flex-wrap:wrap; gap:10px }
     .topbar .navwrap{ width:100% }
     .spotlight-body{ grid-template-columns: 200px 1fr; }
@@ -839,7 +828,7 @@
   @media (max-width: 768px){
     body{ font-size:14px }
     .frame{ padding:10px 10px 140px }
-    .wordart{ font-size:40px }
+    .logo-link .logo{ height:50px }
     .topbar{ padding:8px 10px }
     .topbar .navwrap{ padding:5px 6px; gap:3px }
     .navlink{ font-size:12px; padding:5px 7px }
@@ -917,7 +906,7 @@
     .amt-grid{ grid-template-columns: repeat(5, 1fr) }
   }
   @media (max-width: 480px){
-    .wordart{ font-size:32px }
+    .logo-link .logo{ height:42px }
     .cards{ grid-template-columns: 1fr }
     .stat-strip{ grid-template-columns: 1fr 1fr }
     .ap-stats{ grid-template-columns: 1fr 1fr }
@@ -956,7 +945,9 @@
 </svg>
 
 <div class="topbar">
-  <a class="wordart" href="#/">music s<span class="it">IT</span></a>
+  <a class="logo-link" href="#/" aria-label="Put Me On — home">
+    <img class="logo" src="./logo.svg" alt="Put Me On"/>
+  </a>
   <div class="navwrap" id="nav"><!-- rendered by JS --></div>
 </div>
 
