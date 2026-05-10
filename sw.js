@@ -3,7 +3,7 @@
 // (so map updates flow through), cache-first for everything else same-origin.
 // Bump CACHE_VERSION when shipping changes.
 
-const CACHE_VERSION = "muzak-v1";
+const CACHE_VERSION = "muzak-v2";
 const SHELL = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const SHELL = [
   "./manifest.webmanifest",
   "./icon.svg",
   "./icon-maskable.svg",
+  "./social-card.svg",
 ];
 
 self.addEventListener("install", (event) => {
