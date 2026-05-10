@@ -1,0 +1,22 @@
+{
+  "name": "Music sIT",
+  "short_name": "MusicSIT",
+  "description": "Indie-music discovery & collab. Tiny artists, real cities, deep-linked tip jars.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#ff2e93",
+  "background_color": "#ffe8f4",
+  "categories": ["music", "social", "entertainment"],
+  "icons": [
+    { "src": "./icon.svg",          "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Crate Digs",    "url": "./#/digs",      "description": "Discover tiny artists" },
+    { "name": "Collab Board",  "url": "./#/collab",    "description": "Trade skills, start a band" },
+    { "name": "Scene Map",     "url": "./#/map",       "description": "Browse by city" },
+    { "name": "Sign Guestbook","url": "./#/guestbook", "description": "Leave a note" }
+  ]
+}

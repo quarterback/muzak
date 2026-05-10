@@ -1739,3 +1739,15 @@ function onCollabSubmit(e){
 /* ── boot ──────────────────────────────────────────────────────────────── */
 window.addEventListener("hashchange", () => { window.scrollTo(0,0); render(); });
 render();
+
+// re-init the d3 map on viewport resize so it fills its container
+window.addEventListener("resize", () => {
+  if (parseHash().route === "map") initMap();
+});
+
+// register service worker (PWA install + offline)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => { /* HTTP-only host? fine, it's optional */ });
+  });
+}
