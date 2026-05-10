@@ -2,8 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Music sIT // where the underground lives</title>
-<meta name="viewport" content="width=1280" />
+<title>Put Me On // find your next favorite artist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ff2e93" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Put Me On" />
+<link rel="canonical" href="https://putmeon.lol/" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" type="image/svg+xml" href="./icon.svg" />
+<link rel="apple-touch-icon" href="./icon.svg" />
+
+<!-- SEO -->
+<meta name="description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears. Bandcamp / SoundCloud / YouTube embeds, deep-linked tip jars, a collab board. A Y2K / web-1.0 indie-music platform at putmeon.lol." />
+<meta name="keywords" content="indie music, music discovery, bandcamp, soundcloud, underground music, indie artists, music collab, tip jar, Y2K, web 1.0, scene map, putmeon" />
+<meta name="author" content="Put Me On" />
+
+<!-- Open Graph (Facebook, LinkedIn, iMessage, Slack, Discord, Bluesky) -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Put Me On" />
+<meta property="og:title" content="Put Me On // find your next favorite artist" />
+<meta property="og:description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears. A Y2K / web-1.0 indie-music discovery & collab platform." />
+<meta property="og:url" content="https://putmeon.lol/" />
+<meta property="og:image" content="https://putmeon.lol/social-card.svg" />
+<meta property="og:image:type" content="image/svg+xml" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Put Me On logo in Y2K WordArt over a tiled-pink web-1.0 background, with the tagline 'find your next favorite artist' and badges reading 1,284 artists, 47 cities, tip jar open 24/7, DIY unsigned." />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Put Me On // find your next favorite artist" />
+<meta name="twitter:description" content="Discover under-the-radar artists from cities all over the world. No playlists, no algorithms — just ears." />
+<meta name="twitter:image" content="https://putmeon.lol/social-card.svg" />
+<meta name="twitter:image:alt" content="Put Me On — Y2K-style indie music discovery platform" />
 <style>
   /* ── Y2K base ─────────────────────────────────────────────────────────────── */
   :root{
@@ -109,24 +142,11 @@
     cursor:pointer;
   }
 
-  .wordart{
-    font-family: "Comic Sans MS","Comic Sans",cursive;
-    font-weight: 900;
-    font-size: 64px;
-    letter-spacing:-.02em;
-    line-height:.9;
-    background: linear-gradient(180deg, #ffe600 0%, #ff6a00 35%, var(--hot) 70%, #6a00ff 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    -webkit-text-stroke: 2px #1a0033;
-    filter: drop-shadow(3px 3px 0 #000) drop-shadow(0 0 0 #000);
-    transform:skewX(-6deg);
-    display:inline-block;
-    text-decoration:none;
+  .logo-link{
+    display:inline-block; line-height:0; text-decoration:none;
   }
-  .wordart .it{
-    background: linear-gradient(180deg, var(--cool), #0096b8 60%, var(--hot));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    -webkit-text-stroke: 2px #1a0033;
+  .logo-link .logo{
+    display:block; height:78px; width:auto;
   }
 
   .ticker{
@@ -792,6 +812,119 @@
     letter-spacing:.06em; color:var(--muted); margin-bottom:4px;
   }
   .settings-radio .opts{ display:flex; flex-wrap:wrap; gap:4px }
+
+  /* ── responsive ────────────────────────────────────────────────────────── */
+  @media (max-width: 1024px){
+    .frame{ padding:12px 12px 130px }
+    .logo-link .logo{ height:62px }
+    .topbar{ flex-wrap:wrap; gap:10px }
+    .topbar .navwrap{ width:100% }
+    .spotlight-body{ grid-template-columns: 200px 1fr; }
+    .spotlight-body .sp-side{ grid-column: 1 / -1; border-left:0; border-top:2px dashed var(--muted); padding:12px 0 0 }
+    .me-hero{ grid-template-columns: 160px 1fr }
+    .me-hero > div:last-child{ grid-column: 1 / -1 }
+    .me-avatar{ width:160px; height:160px; font-size:72px }
+  }
+  @media (max-width: 768px){
+    body{ font-size:14px }
+    .frame{ padding:10px 10px 140px }
+    .logo-link .logo{ height:50px }
+    .topbar{ padding:8px 10px }
+    .topbar .navwrap{ padding:5px 6px; gap:3px }
+    .navlink{ font-size:12px; padding:5px 7px }
+
+    .hero{ grid-template-columns: 1fr; gap:10px }
+    .hero-l{ padding:14px 16px }
+    .hero-l h1{ font-size:30px !important }
+    .stat-strip{ grid-template-columns: repeat(2, 1fr) }
+    .grid{ grid-template-columns: 1fr; gap:10px }
+    /* sidebar drops below main on tablet/phone */
+    .grid > aside{ order:2 }
+    .grid > main{ order:1 }
+
+    .cards{ grid-template-columns: repeat(2, 1fr) }
+    .ads{ grid-template-columns: 1fr }
+    .uploadgrid{ grid-template-columns: 1fr }
+    .tipbox{ grid-template-columns: repeat(3, 1fr) auto }
+
+    .spotlight-body{ grid-template-columns: 1fr; padding:10px }
+    .sp-art{ max-width:240px; margin:0 auto }
+    .sp-name{ font-size:30px }
+    .sp-side{ grid-column: 1 / -1 }
+
+    .ap-hero{ grid-template-columns: 1fr; padding:14px }
+    .ap-art{ max-width:280px; margin:0 auto }
+    .ap-name{ font-size:42px }
+    .ap-stats{ grid-template-columns: repeat(2, 1fr) }
+    .me-hero{ grid-template-columns: 1fr; padding:14px; gap:14px }
+    .me-avatar{ width:140px; height:140px; font-size:60px; margin:0 auto }
+    .me-handle{ font-size:34px; text-align:center }
+    .me-stats{ grid-template-columns: 1fr 1fr 1fr }
+
+    .field-row{ grid-template-columns: 1fr; gap:2px }
+    .field-row > label{ font-size:10px }
+
+    /* page header — title above buttons, full width */
+    .page-h{ padding:12px; gap:10px }
+    .page-h h1{ font-size:26px }
+
+    /* tabs scroll horizontally */
+    .tabs{ overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch }
+    .tab{ flex:0 0 auto }
+
+    /* tracks list — drop the price column on small screens */
+    .tracks .row-t{ grid-template-columns: 22px 28px 1fr 50px 70px; gap:6px; padding:6px 8px; font-size:11px }
+    .tracks .row-t .dur{ display:none }
+
+    /* d3 map */
+    .mil-map{ aspect-ratio: 4/3 }
+    .mil-map .hud-top, .mil-map .hud-bot{ font-size:9px; left:24px; right:24px }
+    .mil-controls{ font-size:10px; padding:6px }
+
+    /* player simplified */
+    .player{
+      grid-template-columns: 44px 1fr auto;
+      gap:8px; padding:6px 8px;
+    }
+    .player .cd{ width:40px; height:40px }
+    .player .meter{ display:none }
+    .player .info{ font-size:11px; padding:4px 8px }
+    .player .info .small{ font-size:10px }
+    .player .player-ctl:nth-of-type(2){ display:none } /* hide tip+viz row on small */
+    .pbtn{ width:32px; height:30px; font-size:13px }
+    .pbtn.big{ width:40px; height:34px }
+
+    /* settings drawer = full width sheet */
+    .settings-toggle{ right:10px; bottom:64px }
+    .settings-drawer{
+      left:10px; right:10px; bottom:64px;
+      width:auto; max-height:60vh;
+    }
+
+    /* modals padded for thumb reach */
+    .pay-grid{ grid-template-columns: repeat(2, 1fr) }
+    .amt-grid{ grid-template-columns: repeat(5, 1fr) }
+  }
+  @media (max-width: 480px){
+    .logo-link .logo{ height:42px }
+    .cards{ grid-template-columns: 1fr }
+    .stat-strip{ grid-template-columns: 1fr 1fr }
+    .ap-stats{ grid-template-columns: 1fr 1fr }
+    .me-stats{ grid-template-columns: 1fr 1fr }
+    .ap-name{ font-size:34px }
+    .sp-name{ font-size:26px }
+    .badges{ justify-content:center }
+    .tracks .row-t{ grid-template-columns: 22px 1fr 60px; gap:6px }
+    .tracks .row-t .pl, .tracks .row-t .plays{ display:none }
+    .pay-grid{ grid-template-columns: 1fr 1fr }
+    .amt-grid{ grid-template-columns: repeat(3, 1fr) }
+  }
+
+  /* installed PWA — use safe-area insets */
+  @media (display-mode: standalone){
+    .player{ padding-bottom: calc(8px + env(safe-area-inset-bottom)) }
+    .frame{ padding-top: calc(14px + env(safe-area-inset-top)) }
+  }
 </style>
 </head>
 <body data-skin="bubblegum" data-marquee="on" data-construction="on" data-cursor="default" data-playing="true">
@@ -812,7 +945,9 @@
 </svg>
 
 <div class="topbar">
-  <a class="wordart" href="#/">music s<span class="it">IT</span></a>
+  <a class="logo-link" href="#/" aria-label="Put Me On — home">
+    <img class="logo" src="./logo.svg" alt="Put Me On"/>
+  </a>
   <div class="navwrap" id="nav"><!-- rendered by JS --></div>
 </div>
 
@@ -830,7 +965,7 @@
   <div id="app"><!-- rendered by JS based on hash route --></div>
   <div class="siteft">
     <div>
-      <a href="#/guestbook">guestbook</a> · <a href="#">about</a> · <a href="#">artist FAQ</a> ·
+      <a href="#/digs">crate digs</a> · <a href="#">about</a> · <a href="#">artist FAQ</a> ·
       <a href="#">how the tip jar works</a> · <a href="#">our rules (mostly: be nice)</a>
     </div>
     <div style="margin-top:6px">

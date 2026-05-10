@@ -1,4 +1,4 @@
--- Music sIT — Postgres / Supabase schema
+-- Put Me On (putmeon.lol) — Postgres / Supabase schema
 -- Run this in the Supabase SQL editor or via `supabase db push`.
 -- Design choice: artist-side fields are folded into `profiles` (role flips
 -- to 'artist'); a separate `artists` table would duplicate ownership
@@ -266,35 +266,6 @@ create trigger collab_replies_count_aid
   for each row execute function public.tg_collab_replies_count();
 
 -- =====================================================================
--- guestbook
--- =====================================================================
-create table public.guestbook (
-  id         uuid primary key default gen_random_uuid(),
-  author_id  uuid not null references public.profiles(id) on delete cascade,
-  body       text not null check (char_length(body) <= 1000),
-  created_at timestamptz not null default now()
-);
-create index guestbook_created_idx on public.guestbook (created_at desc);
-create index guestbook_author_created_idx on public.guestbook (author_id, created_at desc);
-
-alter table public.guestbook enable row level security;
-create policy "guestbook read all" on public.guestbook for select using (true);
-
--- rate-limit policy: 5 inserts/hr/author
-create policy "guestbook insert self ratelimited" on public.guestbook for insert
-  with check (
-    auth.uid() = author_id
-    and (
-      select count(*) from public.guestbook g
-      where g.author_id = auth.uid()
-        and g.created_at > now() - interval '1 hour'
-    ) < 5
-  );
-
-create policy "guestbook delete own" on public.guestbook for delete
-  using (auth.uid() = author_id);
-
--- =====================================================================
 -- tips_log  (NOT money flow — clicks only; real money goes via
 -- artists' pasted payment handles)
 -- =====================================================================
@@ -367,10 +338,10 @@ create or replace view public.scenes as
 grant select on public.scenes to anon, authenticated;
 
 -- =====================================================================
--- realtime publication (optional, for live guestbook / collab board)
+-- realtime publication (optional, for live collab board / track activity)
 -- =====================================================================
--- alter publication supabase_realtime add table public.guestbook,
---   public.collab_posts, public.collab_replies, public.tracks;
+-- alter publication supabase_realtime add table public.collab_posts,
+--   public.collab_replies, public.tracks;
 
 -- =====================================================================
 -- ▼▼▼ SEED DATA — remove before production ▼▼▼
