@@ -193,14 +193,6 @@ const SEED = {
       replies: 2, created_at: Date.now() - 1000*60*60*24*6 },
   ],
 
-  guestbook: [
-    {who:"tape_tooth", body:"y'all the only place i can find tiny stuff anymore. saltvane changed my walk to work.", at: Date.now() - 1000*60*60*3},
-    {who:"poolboy",    body:"found a drummer through the collab board last month, finishing our EP next week. proof of concept.", at: Date.now() - 1000*60*60*8, _city:"melbourne", _flag:"🇦🇺"},
-    {who:"k.hara",     body:"the radio mode is so good. i leave it on at the cafe.", at: Date.now() - 1000*60*60*30, _city:"kyoto", _flag:"🇯🇵"},
-    {who:"ratking",    body:"please never add a recommendation algorithm. the lucky-dip button is sacred.", at: Date.now() - 1000*60*60*24*3, _city:"london", _flag:"🇬🇧"},
-    {who:"marg_99",    body:"tipped $20 across 6 artists for the price of one streaming month. value.", at: Date.now() - 1000*60*60*24*7, _city:"leipzig", _flag:"🇩🇪"},
-  ],
-
   follows: [ {follower:"tape_tooth", artist:"saltvane"}, {follower:"tape_tooth", artist:"mira_moss"} ],
   saves:   [ {profile:"tape_tooth", track:"t1"}, {profile:"tape_tooth", track:"t4"} ],
   // tip clicks logged for the leaderboard (no money flow).
@@ -250,9 +242,9 @@ const SEED = {
     { name:"Melbourne",   lat:-37.8,lng:145.0,  artists:10, growth:15 },
   ],
 
-  current_user: "tape_tooth",
+  current_user: null, // null = guest; set when a profile is created or chosen
   player: { track_id: null, playing: false },
-  tweaks: { skin: "bubblegum", marquee: true, construction: true, sparkleCursor: false },
+  tweaks: { skin: "bubblegum", marquee: true, construction: true, sparkleCursor: false, showDemo: true },
 };
 
 const GENRES = [
@@ -277,26 +269,51 @@ const TICKER_ITEMS = [
 ];
 
 /* ── state ──────────────────────────────────────────────────────────────── */
+// Tag every entry that originates from the SEED with _demo: true so the
+// "show demo content" toggle in settings can hide them when you're ready
+// to launch with real artists. User-created profiles/tracks/etc. don't get
+// this flag, so they survive even when demo content is hidden.
+function _tagSeed(seed){
+  const s = structuredClone(seed);
+  Object.values(s.profiles).forEach(p => p._demo = true);
+  s.tracks.forEach(t  => t._demo = true);
+  s.collabs.forEach(c => c._demo = true);
+  s.follows.forEach(f => f._demo = true);
+  s.saves.forEach(x   => x._demo = true);
+  s.tips.forEach(x    => x._demo = true);
+  return s;
+}
+
 function loadState(){
+  const seeded = _tagSeed(SEED);
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return structuredClone(SEED);
+    if(!raw) return seeded;
     const saved = JSON.parse(raw);
-    return { ...structuredClone(SEED), ...saved,
-      profiles: { ...SEED.profiles, ...(saved.profiles||{}) },
-      tracks:    [...(saved.tracks   || SEED.tracks)],
-      collabs:   [...(saved.collabs  || SEED.collabs)],
-      guestbook: [...(saved.guestbook|| SEED.guestbook)],
-      follows:   [...(saved.follows  || SEED.follows)],
-      saves:     [...(saved.saves    || SEED.saves)],
-      tips:      [...(saved.tips     || SEED.tips)],
-      scenes:    SEED.scenes,
-      tweaks:    { ...SEED.tweaks, ...(saved.tweaks||{}) },
+    return { ...seeded, ...saved,
+      profiles: { ...seeded.profiles, ...(saved.profiles||{}) },
+      tracks:    [...(saved.tracks   || seeded.tracks)],
+      collabs:   [...(saved.collabs  || seeded.collabs)],
+      follows:   [...(saved.follows  || seeded.follows)],
+      saves:     [...(saved.saves    || seeded.saves)],
+      tips:      [...(saved.tips     || seeded.tips)],
+      scenes:    seeded.scenes,
+      tweaks:    { ...seeded.tweaks, ...(saved.tweaks||{}) },
     };
   }catch(e){
-    return structuredClone(SEED);
+    return seeded;
   }
 }
+
+// filter helpers — when showDemo is off, hide _demo:true rows
+function shouldShowDemo(){ return state.tweaks?.showDemo !== false; }
+function nonDemo(arr){ return arr.filter(x => !x._demo); }
+function visibleProfiles(){
+  const all = Object.values(state.profiles);
+  return shouldShowDemo() ? all : all.filter(p => !p._demo);
+}
+function visibleTracks(){  return shouldShowDemo() ? state.tracks  : nonDemo(state.tracks);  }
+function visibleCollabs(){ return shouldShowDemo() ? state.collabs : nonDemo(state.collabs); }
 function saveState(){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
 }
@@ -305,7 +322,19 @@ let state = loadState();
 function setPatch(patch){ state = { ...state, ...patch }; saveState(); render(); }
 function update(fn){ fn(state); saveState(); render(); }
 
-function me(){ return state.profiles[state.current_user]; }
+// Synthetic "you" for guests so recommendation math keeps working on artist
+// pages (the only route guests can browse).
+const GUEST_PROFILE = {
+  handle: "guest", role: "listener", display_name: "guest",
+  bio: "", city: "Brooklyn", country: "US", flag: "🇺🇸",
+  lat: 40.7, lng: -74.0,
+  taste: { ambient:.5, melodic:.5, slow:.5, warm:.5 },
+  i_offer: [], i_need: [], i_am: "guest listener",
+  prefs: { sizeMax: 500, near: 5000 },
+  payment_handles: {}, created_at: Date.now(),
+};
+function isGuest(){ return !state.current_user || !state.profiles[state.current_user]; }
+function me(){ return isGuest() ? GUEST_PROFILE : state.profiles[state.current_user]; }
 function profileBy(handle){ return state.profiles[handle]; }
 function trackBy(id){ return state.tracks.find(t=>t.id===id); }
 function tracksByArtist(handle){ return state.tracks.filter(t=>t.artist_handle===handle); }
@@ -406,15 +435,28 @@ function embedHtml(track){
 /* ── shared partials ───────────────────────────────────────────────────── */
 function navHtml(){
   const r = parseHash().route;
+  if(isGuest()){
+    const items = [
+      ["",       "home"],
+      ["digs",   "crate digs"],
+      ["collab", "collab board"],
+      ["map",    "scene map"],
+    ];
+    const links = items.map(([k,l])=>
+      `<a class="navlink ${r===k?"active":""}" href="#/${k}">${esc(l)}</a>`
+    ).join("");
+    return links +
+      `<a class="navlink" href="#/signup" style="background:linear-gradient(180deg,var(--hot),#c0006a); color:#fff">+ create profile</a>` +
+      `<span class="role-pill">● guest</span>`;
+  }
   const role = me().role;
   const items = [
-    ["",          "home"],
-    ["digs",      "crate digs"],
-    ["collab",    "collab board"],
-    ["map",       "scene map"],
-    ["upload",    role==="artist" ? "↑ upload" : "⊕ become an artist"],
-    ["guestbook", "guestbook"],
-    ["me",        `@${esc(me().handle)}`],
+    ["",       "home"],
+    ["digs",   "crate digs"],
+    ["collab", "collab board"],
+    ["map",    "scene map"],
+    ["upload", role==="artist" ? "↑ upload" : "⊕ become an artist"],
+    ["me",     `@${esc(me().handle)}`],
   ];
   const links = items.map(([k,l])=>
     `<a class="navlink ${r===k?"active":""}" href="#/${k}">${esc(l)}</a>`
@@ -535,7 +577,7 @@ function sidebarHtml(){
       <div>
         ${(()=>{
           // most-saved tracks
-          const ranked = state.tracks.map(t=>({t, c: saveCount(t.id)+ (Math.random()*0)}))
+          const ranked = visibleTracks().map(t=>({t, c: saveCount(t.id)+ (Math.random()*0)}))
             .sort((a,b)=>b.c-a.c).slice(0,5);
           return ranked.map((row,i)=>{
             const a = profileBy(row.t.artist_handle);
@@ -577,12 +619,12 @@ function sidebarHtml(){
 /* ── pages ──────────────────────────────────────────────────────────────── */
 function renderHome(){
   const u = me();
-  const enriched = Object.values(state.profiles).filter(p=>p.role==="artist")
+  const enriched = visibleProfiles().filter(p=>p.role==="artist")
     .map(p=>({ p, score: scoreArtist(p, u) }))
     .sort((a,b)=>b.score-a.score);
   const featured = enriched[0]?.p;
-  const totalArtists = Object.values(state.profiles).filter(p=>p.role==="artist").length;
-  const totalCities = new Set(Object.values(state.profiles).filter(p=>p.role==="artist").map(p=>p.city)).size;
+  const totalArtists = visibleProfiles().filter(p=>p.role==="artist").length;
+  const totalCities = new Set(visibleProfiles().filter(p=>p.role==="artist").map(p=>p.city)).size;
   return `
     <div class="hero">
       <div class="bevel hero-l">
@@ -638,7 +680,7 @@ let digsFilters = { size:"any", where:"global", tag:"all" };
 
 function renderDigsBody(){
   const u = me();
-  const allArtists = Object.values(state.profiles).filter(p=>p.role==="artist");
+  const allArtists = visibleProfiles().filter(p=>p.role==="artist");
   const enriched = allArtists.map(p=>{
     const ts = tracksByArtist(p.handle);
     const saves = ts.reduce((s,t)=>s+saveCount(t.id),0);
@@ -783,7 +825,7 @@ function renderDigs(){
 
 function renderCollab(){
   const u = me();
-  const ads = state.collabs.map(c=>({ ...c, fit: collabFit(c, u) })).sort((a,b)=>b.fit-a.fit);
+  const ads = visibleCollabs().map(c=>({ ...c, fit: collabFit(c, u) })).sort((a,b)=>b.fit-a.fit);
   const can = u.role==="artist";
   return `
     <div class="page-h">
@@ -1087,43 +1129,133 @@ function renderMe(){
   `;
 }
 
-function renderGuestbook(){
-  const u = me();
+function renderWelcome(){
+  // pickable demo accounts so first-time visitors can try the app fully signed-in
+  const demos = ["tape_tooth","saltvane","mira_moss","konigswasser","chrome_plum"]
+    .map(h => profileBy(h)).filter(Boolean);
+  const totalArtists = visibleProfiles().filter(p=>p.role==="artist").length;
+  return `
+    <div class="hero">
+      <div class="bevel hero-l">
+        <div class="small upper" style="color:var(--muted)">welcome ✦ no algorithms · just ears</div>
+        <h1 style="margin:6px 0 0; font:italic 700 38px/1 'Times New Roman', serif">
+          where the <span style="color:var(--hot)">underground</span> lives.
+        </h1>
+        <p class="tag">make a profile, paste a stream link, or just dig through ${totalArtists} tiny artists in 47 cities. tip jars deep-link to artists' own apps — money never touches us.</p>
+        <div class="row">
+          <a class="btn btn-hot" href="#/signup">+ create your profile</a>
+          <a class="btn btn-cool" href="#/digs">▶ browse as guest</a>
+        </div>
+        <div class="stat-strip">
+          <div><b>${totalArtists}</b>artists</div>
+          <div><b>${state.tracks.length}</b>tracks</div>
+          <div><b>${state.collabs.length}</b>collabs open</div>
+          <div><b>$${tipsThisWeek().toLocaleString()}</b>tipped this wk</div>
+        </div>
+      </div>
+      <div class="bevel hero-r">
+        <div class="panel-h" style="margin:-14px -14px 10px"><span>★ try a demo account</span><span class="x">×</span></div>
+        <p class="small" style="color:var(--muted); margin:0 0 8px">poke around as someone else. you can always make your own after.</p>
+        <ul class="sb-list">
+          ${demos.map(p=>`
+            <li>
+              <span class="dot"></span>
+              <b style="flex:1">@${esc(p.handle)}</b>
+              <span class="small" style="color:var(--muted)">${esc(p.flag||"")} ${esc(p.city||"")} · ${esc(p.role)}</span>
+              <button class="btn" style="padding:3px 8px; font-size:11px" data-action="login-demo" data-handle="${esc(p.handle)}">sign in →</button>
+            </li>
+          `).join("")}
+        </ul>
+      </div>
+    </div>
+    <div class="pixel-divider"></div>
+    <div class="bevel panel" style="margin-top:14px">
+      <div class="panel-h"><span>♦ what's here</span><span class="x">×</span></div>
+      <ul style="font:14px/1.6 'Trebuchet MS'">
+        <li><b>Crate Digs</b> — taste-matched tiny artists, filterable by size + distance + tag</li>
+        <li><b>Collab Board</b> — classified ads ranked by fit with your offer/need profile</li>
+        <li><b>Scene Map</b> — d3 + topojson world map of cities with active uploaders, drag to pan, scroll to zoom</li>
+        <li><b>Upload</b> — paste a Bandcamp / SoundCloud / YouTube link, it embeds inline</li>
+        <li><b>Tips</b> — deep-link to the artist's Venmo / Cash App / PayPal / Stripe handle</li>
+      </ul>
+    </div>
+  `;
+}
+
+function renderSignup(){
+  // suggest a flag based on country if visible
   return `
     <div class="page-h">
-      <div><div class="crumb">community</div><h1>guestbook</h1>
-        <p class="lede">leave a note. tell us what you found, who you tipped, who you want to collab with.</p></div>
-      <span class="role-pill">${state.guestbook.length.toLocaleString()} entries · mostly nice</span>
+      <div><div class="crumb">create your profile</div><h1>sign up</h1>
+        <p class="lede">no email, no algorithm — just pick a handle and tell us where you are. everything stays in your browser until you connect a database.</p></div>
+      <a class="btn" href="#/">cancel</a>
     </div>
-    <div class="gb-form">
-      <div class="row" style="margin-bottom:6px">
-        <span class="small upper" style="color:var(--muted)">signing as</span>
-        <b>@${esc(u.handle)}</b>
-        <span class="small" style="color:var(--muted)">· ${esc(u.flag||"")} ${esc(u.city||"")}</span>
-      </div>
-      <form id="guestbook-form">
-        <textarea name="body" placeholder="say something nice. or weird. or just an artist name we should hear."></textarea>
-        <div class="row" style="margin-top:8px">
-          <span class="small" style="color:var(--muted)">be nice. no spam. no AI music plugs.</span>
+    <div class="bevel panel" style="max-width:680px; margin:0 auto">
+      <div class="panel-h"><span>♥ new profile</span><span class="x">×</span></div>
+      <form id="signup-form" autocomplete="off" style="display:grid; gap:8px">
+        <div class="field-row"><label>handle <span style="color:var(--hot)">*</span></label>
+          <input class="field" name="handle" required pattern="[a-z0-9_\\-\\.]{2,24}" placeholder="lowercase, 2–24 chars" autofocus/></div>
+        <div class="field-row"><label>display name</label>
+          <input class="field" name="display_name" placeholder="(optional, defaults to handle)"/></div>
+        <div class="field-row"><label>i am a <span style="color:var(--hot)">*</span></label>
+          <select class="field" name="role" required>
+            <option value="listener">listener (i'm here to dig)</option>
+            <option value="artist">artist (i make stuff)</option>
+          </select></div>
+        <div class="field-row"><label>city</label>
+          <input class="field" name="city" placeholder="brooklyn"/></div>
+        <div class="field-row"><label>country</label>
+          <input class="field" name="country" placeholder="US"/></div>
+        <div class="field-row"><label>flag emoji</label>
+          <input class="field" name="flag" placeholder="🇺🇸" maxlength="4"/></div>
+        <div class="field-row"><label>bio</label>
+          <input class="field" name="bio" placeholder="one line about you"/></div>
+        <div class="field-row"><label>i offer</label>
+          <input class="field" name="i_offer" placeholder="comma-separated: mix, vocal, cover-art"/></div>
+        <div class="field-row"><label>i need</label>
+          <input class="field" name="i_need" placeholder="comma-separated: drums, feature"/></div>
+
+        <fieldset style="border:1px dashed var(--muted); padding:10px; margin-top:6px">
+          <legend class="small upper" style="color:var(--muted)">links (optional)</legend>
+          <div class="field-row"><label>bandcamp</label><input class="field" name="bandcamp_url" placeholder="https://you.bandcamp.com"/></div>
+          <div class="field-row"><label>soundcloud</label><input class="field" name="soundcloud_url" placeholder="https://soundcloud.com/you"/></div>
+          <div class="field-row"><label>website</label><input class="field" name="website_url" placeholder="https://"/></div>
+          <div class="field-row"><label>atproto handle</label><input class="field" name="atproto_handle" placeholder="alice.bsky.social"/></div>
+        </fieldset>
+
+        <fieldset style="border:1px dashed var(--muted); padding:10px">
+          <legend class="small upper" style="color:var(--muted)">tip-jar handles (deep-linked, never touched by this site)</legend>
+          ${[
+            ["venmo","Venmo (@handle)"],
+            ["cashapp","Cash App ($handle)"],
+            ["paypal","PayPal email"],
+            ["stripe_url","Stripe payment URL"],
+          ].map(([k,l])=>`<div class="field-row"><label>${esc(l)}</label><input class="field" name="ph_${k}"/></div>`).join("")}
+        </fieldset>
+
+        <fieldset id="signup-track-fields" style="border:1px dashed var(--hot); padding:10px; display:none">
+          <legend class="small upper" style="color:var(--hot)">your first track (artist mode)</legend>
+          <p class="small" style="color:var(--muted); margin:0 0 6px">paste a stream URL — Bandcamp, SoundCloud, Mixcloud, YouTube, or Spotify. it'll embed inline as a real iframe player on your profile. you can add more after.</p>
+          <div class="field-row"><label>title</label><input class="field" name="first_track_title" placeholder="kelp room"/></div>
+          <div class="field-row"><label>stream URL</label><input class="field" name="first_track_url" placeholder="https://yourname.bandcamp.com/album/..."/></div>
+          <div class="field-row"><label>genre / scene</label><input class="field" name="first_track_genre" placeholder="bedroom drone"/></div>
+          <div class="field-row"><label>tags</label><input class="field" name="first_track_tags" placeholder="ambient, slow, warm"/></div>
+          <div class="field-row"><label>cover art</label>
+            <select class="field" name="first_track_art">
+              ${["art1","art2","art3","art4","art5","art6","art7","art8","art9"].map(a=>`<option value="${a}">${a}</option>`).join("")}
+            </select></div>
+          <div class="field-row"><label>tagline</label><input class="field" name="first_track_note" placeholder="4-track loops"/></div>
+          <div class="field-row"><label>price label</label><input class="field" name="first_track_price" placeholder="name your price"/></div>
+        </fieldset>
+
+        <div id="signup-error" class="small" style="color:var(--hot); display:none"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-hot" type="submit">create profile →</button>
+          <a class="btn" href="#/">cancel</a>
           <span class="spacer"></span>
-          <button class="btn btn-hot" type="submit">✎ sign the book</button>
+          <span class="small" style="color:var(--muted)">already have a handle? <a href="#" data-action="open-login-list">switch users ↓</a></span>
         </div>
       </form>
-    </div>
-    <div class="gb-list" style="margin-top:14px">
-      ${[...state.guestbook].sort((a,b)=>b.at-a.at).map(e=>{
-        const p = profileBy(e.who);
-        return `<div class="gb-entry">
-          <div class="gb-meta">
-            <span>${esc(p?.flag || e._flag || "")}</span>
-            <b>@${esc(e.who)}</b>
-            <span>· ${esc(p?.city || e._city || "")}</span>
-            <span class="spacer"></span>
-            <span>${timeAgo(e.at)}</span>
-          </div>
-          <p>${esc(e.body)}</p>
-        </div>`;
-      }).join("")}
     </div>
   `;
 }
@@ -1314,8 +1446,20 @@ function renderSettings(){
       <span>${esc(lbl)}</span>
       <input type="checkbox" ${t[key]?"checked":""} data-action="toggle-tweak" data-key="${esc(key)}"/>
     </label>`;
+  const allHandles = Object.keys(state.profiles);
   const sw = (who) => `<button class="navlink ${state.current_user===who?"active":""}" data-action="switch-user" data-handle="${esc(who)}" style="font:bold 11px/1 'Courier New'; padding:5px 8px; text-transform:uppercase">@${esc(who)}</button>`;
-  return `
+
+  const session = isGuest()
+    ? `<div class="settings-row" style="flex-direction:column; align-items:stretch; gap:6px">
+         <span class="small" style="color:var(--muted)">you are browsing as <b>guest</b>.</span>
+         <a class="btn btn-hot" href="#/signup" style="justify-content:center">+ create profile</a>
+       </div>`
+    : `<div class="settings-row" style="flex-direction:column; align-items:stretch; gap:6px">
+         <span class="small" style="color:var(--muted)">signed in as <b>@${esc(me().handle)}</b> · ${esc(me().role)}</span>
+         <button class="btn" data-action="log-out">log out</button>
+       </div>`;
+
+  const roleSwitch = isGuest() ? "" : `
     <div class="settings-section">role</div>
     <div class="settings-radio">
       <div class="lbl">i am a</div>
@@ -1323,15 +1467,21 @@ function renderSettings(){
         <button class="navlink ${me().role==="listener"?"active":""}" data-action="${me().role==="listener"?"":"become-listener"}" style="font:bold 11px/1 'Courier New'; padding:5px 8px; text-transform:uppercase">listener</button>
         <button class="navlink ${me().role==="artist"?"active":""}" data-action="${me().role==="artist"?"":"become-artist"}" style="font:bold 11px/1 'Courier New'; padding:5px 8px; text-transform:uppercase">artist</button>
       </div>
-    </div>
+    </div>`;
+
+  return `
+    <div class="settings-section">session</div>
+    ${session}
+    ${roleSwitch}
     ${radio("theme","skin",["bubblegum","cassette","hacker","sunset"])}
     <div class="settings-section">extras</div>
     ${toggle("marquee on","marquee")}
     ${toggle("construction banner","construction")}
     ${toggle("sparkle cursor","sparkleCursor")}
-    <div class="settings-section">switch user (demo)</div>
+    ${toggle("show demo content","showDemo")}
+    <div class="settings-section">switch user</div>
     <div class="settings-radio"><div class="opts">
-      ${["tape_tooth","saltvane","mira_moss","konigswasser"].map(sw).join("")}
+      ${allHandles.map(sw).join("")}
     </div></div>
     <div class="settings-section">data</div>
     <div class="settings-row">
@@ -1361,17 +1511,26 @@ function render(){
   document.getElementById("player").innerHTML = renderPlayer();
   document.getElementById("settings-body").innerHTML = renderSettings();
 
+  // Guests get the welcome screen for everything except the artist profile
+  // page (so shareable links still work) and the signup form itself.
+  if (isGuest() && route !== "artist" && route !== "signup" && route !== "digs" && route !== "collab" && route !== "map") {
+    document.getElementById("app").innerHTML = renderWelcome();
+    attachForms();
+    renderModal();
+    return;
+  }
+
   let html = "";
   switch(route){
-    case "":          html = renderHome(); break;
+    case "":          html = isGuest() ? renderWelcome() : renderHome(); break;
+    case "signup":    html = renderSignup(); break;
     case "digs":      html = `<div class="grid">${sidebarHtml()}<main>${renderDigs()}</main></div>`; break;
     case "collab":    html = `<div class="grid">${sidebarHtml()}<main>${renderCollab()}</main></div>`; break;
     case "map":       html = renderMap(); break;
     case "upload":    html = renderUpload(); break;
-    case "guestbook": html = renderGuestbook(); break;
-    case "me":        html = renderMe(); break;
+    case "me":        html = isGuest() ? renderWelcome() : renderMe(); break;
     case "artist":    html = renderArtist(arg); break;
-    default:          html = renderHome();
+    default:          html = isGuest() ? renderWelcome() : renderHome();
   }
   document.getElementById("app").innerHTML = html;
 
@@ -1517,7 +1676,7 @@ document.addEventListener("click", function(e){
       break;
     case "next-track":
     case "prev-track": {
-      const list = state.tracks;
+      const list = visibleTracks();
       if(list.length===0) break;
       const idx = list.findIndex(x=>x.id===state.player.track_id);
       const next = a==="next-track" ? list[(idx+1+list.length)%list.length] : list[(idx-1+list.length)%list.length];
@@ -1526,7 +1685,7 @@ document.addEventListener("click", function(e){
       break;
     }
     case "random-track": {
-      const list = state.tracks;
+      const list = visibleTracks();
       if(list.length===0) break;
       const next = list[Math.floor(Math.random()*list.length)];
       state.player = { track_id: next.id, playing: true };
@@ -1534,7 +1693,7 @@ document.addEventListener("click", function(e){
       break;
     }
     case "lucky-dip": {
-      const artists = Object.values(state.profiles).filter(p=>p.role==="artist");
+      const artists = visibleProfiles().filter(p=>p.role==="artist");
       const a2 = artists[Math.floor(Math.random()*artists.length)];
       if(a2) location.hash = `#/artist/${a2.handle}`;
       break;
@@ -1593,11 +1752,31 @@ document.addEventListener("click", function(e){
       state.tracks = state.tracks.filter(x=>x.id!==t.dataset.id);
       saveState(); render();
       break;
-    case "switch-user": {
+    case "switch-user":
+    case "login-demo": {
       const h = t.dataset.handle;
-      if(state.profiles[h]){ state.current_user = h; saveState(); render(); }
+      if(state.profiles[h]){
+        state.current_user = h; saveState();
+        location.hash = "#/";
+        render();
+      }
       break;
     }
+    case "log-out":
+      state.current_user = null;
+      saveState();
+      location.hash = "#/";
+      render();
+      break;
+    case "open-login-list":
+      e.preventDefault();
+      document.getElementById("settings-drawer").hidden = false;
+      // flash the switch-user section so it's obvious where to go
+      setTimeout(()=>{
+        const drawer = document.getElementById("settings-drawer");
+        drawer?.scrollTo({ top: drawer.scrollHeight, behavior: "smooth" });
+      }, 50);
+      break;
     case "set-tweak":
       state.tweaks[t.dataset.key] = t.dataset.value;
       saveState(); render();
@@ -1630,8 +1809,17 @@ function attachForms(){
   if(upload) upload.addEventListener("submit", onUploadSubmit);
   const profile = document.getElementById("profile-form");
   if(profile) profile.addEventListener("submit", onProfileSubmit);
-  const gb = document.getElementById("guestbook-form");
-  if(gb) gb.addEventListener("submit", onGuestbookSubmit);
+  const signup = document.getElementById("signup-form");
+  if(signup){
+    signup.addEventListener("submit", onSignupSubmit);
+    // toggle the "your first track" fieldset based on role select
+    const roleSel = signup.querySelector('[name="role"]');
+    const trackFs = signup.querySelector('#signup-track-fields');
+    if(roleSel && trackFs){
+      const sync = () => { trackFs.style.display = roleSel.value === "artist" ? "" : "none"; };
+      roleSel.addEventListener("change", sync); sync();
+    }
+  }
 }
 
 function detectEmbedKind(url){
@@ -1704,20 +1892,82 @@ function onProfileSubmit(e){
     state.saves.forEach(s=>{ if(s.profile===u.handle) s.profile = newHandle; });
     state.tips.forEach(t=>{ if(t.from===u.handle) t.from = newHandle; if(t.to===u.handle) t.to = newHandle; });
     state.collabs.forEach(c=>{ if(c.author===u.handle) c.author = newHandle; });
-    state.guestbook.forEach(g=>{ if(g.who===u.handle) g.who = newHandle; });
     state.current_user = newHandle;
   }
   state.profiles[newHandle] = newProfile;
   saveState(); render();
 }
 
-function onGuestbookSubmit(e){
+function onSignupSubmit(e){
   e.preventDefault();
+  const err = document.getElementById("signup-error");
+  const showErr = (msg) => { if(err){ err.style.display = "block"; err.textContent = msg; } };
   const fd = new FormData(e.target);
-  const body = (fd.get("body")||"").toString().trim();
-  if(!body) return;
-  state.guestbook.push({ who: state.current_user, body, at: Date.now() });
-  saveState(); render();
+  const handle = (fd.get("handle")||"").toString().trim().toLowerCase();
+  if (!/^[a-z0-9_\-\.]{2,24}$/.test(handle)){
+    showErr("handle must be 2–24 chars: lowercase letters, digits, _ - or ."); return;
+  }
+  if (state.profiles[handle]){
+    showErr(`@${handle} already exists. pick another, or sign in via the tweaks drawer.`); return;
+  }
+  const role = fd.get("role")?.toString() === "artist" ? "artist" : "listener";
+  const list = (k) => (fd.get(k)?.toString()||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const newProfile = {
+    handle,
+    role,
+    display_name: (fd.get("display_name")?.toString().trim()) || handle,
+    bio: fd.get("bio")?.toString() || "",
+    city: fd.get("city")?.toString() || "",
+    country: fd.get("country")?.toString() || "",
+    flag: fd.get("flag")?.toString() || "",
+    lat: 0, lng: 0,  // could geocode later
+    taste: {},
+    i_offer: list("i_offer"),
+    i_need:  list("i_need"),
+    i_am: role,
+    prefs: { sizeMax: 500, near: 5000, languages: ["en","any"] },
+    payment_handles: {
+      venmo:      fd.get("ph_venmo")?.toString() || "",
+      cashapp:    fd.get("ph_cashapp")?.toString() || "",
+      paypal:     fd.get("ph_paypal")?.toString() || "",
+      stripe_url: fd.get("ph_stripe_url")?.toString() || "",
+    },
+    bandcamp_url:   fd.get("bandcamp_url")?.toString() || "",
+    soundcloud_url: fd.get("soundcloud_url")?.toString() || "",
+    website_url:    fd.get("website_url")?.toString() || "",
+    atproto_handle: fd.get("atproto_handle")?.toString() || "",
+    created_at: Date.now(),
+  };
+  state.profiles[handle] = newProfile;
+  state.current_user = handle;
+
+  // if artist & first-track URL provided, ship it immediately so they can see
+  // the embed working on their freshly minted profile page
+  let firstTrackId = null;
+  if (role === "artist") {
+    const url = (fd.get("first_track_url")||"").toString().trim();
+    if (url) {
+      firstTrackId = "t" + Math.random().toString(36).slice(2,8);
+      state.tracks.unshift({
+        id: firstTrackId,
+        artist_handle: handle,
+        title: fd.get("first_track_title")?.toString().trim() || "untitled",
+        embed_kind: detectEmbedKind(url),
+        embed_url: url,
+        cover_art: fd.get("first_track_art")?.toString() || "art1",
+        note: fd.get("first_track_note")?.toString() || "",
+        genre: fd.get("first_track_genre")?.toString() || "",
+        tags: list("first_track_tags"),
+        price_label: fd.get("first_track_price")?.toString() || "name your price",
+        open_to: [],
+        published_at: Date.now(),
+      });
+    }
+  }
+  saveState();
+  // route them to their fresh profile so they see the embed (or to /me)
+  location.hash = role === "artist" ? `#/artist/${handle}` : `#/me`;
+  render();
 }
 
 function onCollabSubmit(e){

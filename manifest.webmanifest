@@ -14,9 +14,9 @@
     { "src": "./icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Crate Digs",    "url": "./#/digs",      "description": "Discover tiny artists" },
-    { "name": "Collab Board",  "url": "./#/collab",    "description": "Trade skills, start a band" },
-    { "name": "Scene Map",     "url": "./#/map",       "description": "Browse by city" },
-    { "name": "Sign Guestbook","url": "./#/guestbook", "description": "Leave a note" }
+    { "name": "Crate Digs",    "url": "./#/digs",   "description": "Discover tiny artists" },
+    { "name": "Collab Board",  "url": "./#/collab", "description": "Trade skills, start a band" },
+    { "name": "Scene Map",     "url": "./#/map",    "description": "Browse by city" },
+    { "name": "Create Profile","url": "./#/signup", "description": "Make your handle" }
   ]
 }
