@@ -107,6 +107,20 @@ const SEED = {
       payment_handles: { paypal:"low@example.jp" },
       created_at: Date.now() - 1000*60*60*24*150,
     },
+    // ★ Real, verified-playable artist for testing the embed feature.
+    // Forss is a Swedish electronic/downtempo project; "Flickermood" is a
+    // Creative Commons release that's been on SoundCloud since the early
+    // SoundCloud days and is widely embedded in tutorials.
+    forss: {
+      handle: "forss", role: "artist", display_name: "Forss",
+      bio: "downtempo / electronic. real artist included as an embed test — press play, you should actually hear music.",
+      city: "Stockholm", country: "SE", flag: "🇸🇪", lat: 59.3, lng: 18.0,
+      taste: { downtempo:1, electronic:1, ambient:.7, warm:.6 },
+      i_offer: ["production"], i_need: [], i_am: "producer",
+      payment_handles: {},
+      website_url: "https://soundcloud.com/forss",
+      created_at: Date.now() - 1000*60*60*24*365,
+    },
   },
 
   // tracks. embed_url is a real URL the iframe loads.
@@ -170,6 +184,16 @@ const SEED = {
       genre: "club / ambient", tags: ["ambient","club","slow","warm"],
       price_label: "¥500+", open_to: ["feature","mix"],
       published_at: Date.now() - 1000*60*60*24*60 },
+    // ★ Real SoundCloud track. The toEmbedSrc() helper auto-wraps this
+    // public URL into the proper widget URL — pressing play on Forss's
+    // profile page should actually stream "Flickermood".
+    { id: "t_forss", artist_handle: "forss", title: "Flickermood",
+      embed_kind: "soundcloud",
+      embed_url: "https://soundcloud.com/forss/flickermood",
+      cover_art: "art5", note: "real test track — should actually play",
+      genre: "downtempo / electronic", tags: ["downtempo","electronic","ambient","warm"],
+      price_label: "free (CC)", open_to: [],
+      published_at: Date.now() - 1000*60*60*24*365 },
   ],
 
   collabs: [
@@ -402,33 +426,64 @@ function timeAgo(at){
 }
 
 /* ── embed URL → iframe HTML ───────────────────────────────────────────── */
+// Convert a public page URL into the proper iframe-player URL for each
+// service. Public pages (e.g. soundcloud.com/artist/track) refuse to be
+// framed, so we wrap them with the service's official widget URL.
+function toEmbedSrc(kind, raw){
+  const u = (raw||"").trim();
+  if(!u) return "";
+  if(kind === "youtube"){
+    if(/\/embed\//.test(u)) return u;
+    const m = u.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{6,})/);
+    return m ? `https://www.youtube.com/embed/${m[1]}` : u;
+  }
+  if(kind === "soundcloud"){
+    if(u.startsWith("https://w.soundcloud.com/player/")) return u;
+    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(u)}&color=%23ff2e93&auto_play=false&show_user=true`;
+  }
+  if(kind === "mixcloud"){
+    if(u.includes("/widget/iframe/")) return u;
+    return `https://www.mixcloud.com/widget/iframe/?feed=${encodeURIComponent(u)}&hide_cover=1&light=0`;
+  }
+  if(kind === "spotify"){
+    if(u.includes("open.spotify.com/embed/")) return u;
+    // turn https://open.spotify.com/track/ID into https://open.spotify.com/embed/track/ID
+    return u.replace("open.spotify.com/", "open.spotify.com/embed/");
+  }
+  if(kind === "bandcamp"){
+    return u; // Bandcamp embed URLs require an album/track ID; can't be derived from the page URL alone
+  }
+  return u;
+}
+
 function embedHtml(track){
   const u = (track.embed_url||"").trim();
   const k = track.embed_kind;
-  if(k==="bandcamp" && u){
-    return `<iframe src="${esc(u)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
+  const src = toEmbedSrc(k, u);
+  if(k==="bandcamp" && src && src.includes("EmbeddedPlayer")){
+    return `<iframe src="${esc(src)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="soundcloud" && u){
-    return `<iframe src="${esc(u)}" height="166" allow="autoplay" loading="lazy"></iframe>`;
+  if(k==="soundcloud" && src){
+    return `<iframe src="${esc(src)}" height="166" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="youtube" && u){
-    let src = u;
-    if(!/embed/.test(src)){
-      const m = src.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{6,})/);
-      if(m) src = `https://www.youtube.com/embed/${m[1]}`;
-    }
+  if(k==="youtube" && src){
     return `<iframe src="${esc(src)}" height="200" allow="autoplay; encrypted-media" loading="lazy" allowfullscreen></iframe>`;
   }
-  if(k==="mixcloud" && u){
-    return `<iframe src="${esc(u)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
+  if(k==="mixcloud" && src){
+    return `<iframe src="${esc(src)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="spotify" && u){
-    return `<iframe src="${esc(u)}" height="152" allow="autoplay; encrypted-media" loading="lazy"></iframe>`;
+  if(k==="spotify" && src){
+    return `<iframe src="${esc(src)}" height="152" allow="autoplay; encrypted-media" loading="lazy"></iframe>`;
   }
-  // empty / external — show a placeholder block
-  return `<div class="small upper" style="color:var(--lime); padding:18px; text-align:center; background:#0d130d">
-    <div style="font:bold 14px/1.4 'Courier New'; margin-bottom:6px">[ no embed yet ]</div>
-    <div>this artist hasn't pasted a stream URL.${u ? ` external link: <a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--cool)">${esc(u)}</a>` : ""}</div>
+  // bandcamp without a real EmbeddedPlayer URL → fall through to the helper card
+  const link = u || "";
+  const hint = k==="bandcamp"
+    ? `Bandcamp embeds require the player URL — on the album's page, click <b>Share/Embed</b> → <b>Embed</b>, copy the iframe <code>src</code>, and paste that here.`
+    : `paste a public stream URL — Bandcamp / SoundCloud / Mixcloud / YouTube / Spotify all work.`;
+  return `<div class="small" style="color:var(--lime); padding:18px; text-align:center; background:#0d130d">
+    <div style="font:bold 14px/1.4 'Courier New'; margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em">[ no playable embed yet ]</div>
+    <div style="font-family:'Trebuchet MS',sans-serif">${hint}</div>
+    ${link ? `<div style="margin-top:8px"><a href="${esc(link)}" target="_blank" rel="noopener" style="color:var(--cool)">${esc(link)} ↗</a></div>` : ""}
   </div>`;
 }
 
@@ -1130,8 +1185,10 @@ function renderMe(){
 }
 
 function renderWelcome(){
-  // pickable demo accounts so first-time visitors can try the app fully signed-in
-  const demos = ["tape_tooth","saltvane","mira_moss","konigswasser","chrome_plum"]
+  // pickable demo accounts so first-time visitors can try the app fully signed-in.
+  // forss is the verified-playable test artist — put it first so users can hit
+  // "play" and immediately confirm the embed feature works.
+  const demos = ["forss","tape_tooth","saltvane","mira_moss","konigswasser"]
     .map(h => profileBy(h)).filter(Boolean);
   const totalArtists = visibleProfiles().filter(p=>p.role==="artist").length;
   return `
@@ -1145,6 +1202,7 @@ function renderWelcome(){
         <div class="row">
           <a class="btn btn-hot" href="#/signup">+ create your profile</a>
           <a class="btn btn-cool" href="#/digs">▶ browse as guest</a>
+          <a class="btn btn-lime" href="#/artist/forss">♫ play a real test track</a>
         </div>
         <div class="stat-strip">
           <div><b>${totalArtists}</b>artists</div>
