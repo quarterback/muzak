@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Music sIT // where the underground lives</title>
+<meta name="viewport" content="width=1280" />
+<style>
+  /* ── Y2K base ─────────────────────────────────────────────────────────────── */
+  :root{
+    /* default skin: BUBBLEGUM */
+    --bg:#ffe8f4;
+    --bg-tile:#ffd1ea;
+    --paper:#ffffff;
+    --ink:#1a0033;
+    --muted:#6b3a8a;
+    --hot:#ff2e93;
+    --cool:#00d4ff;
+    --lime:#caff00;
+    --rust:#ff6a00;
+    --bevel-lt:#ffffff;
+    --bevel-dk:#7a1a55;
+    --link:#0026ff;
+    --link-v:#7a00b3;
+    --frame:#ff2e93;
+  }
+  body[data-skin="cassette"]{
+    --bg:#f3e7d3; --bg-tile:#e8d6b6; --paper:#fbf6ec; --ink:#2a1a0a;
+    --muted:#6b4a26; --hot:#b8451e; --cool:#3a6b8a; --lime:#d4b53a;
+    --rust:#9a3a1a; --bevel-lt:#fffaf0; --bevel-dk:#5a3a16;
+    --link:#1a3a8a; --link-v:#6a2a8a; --frame:#5a3a16;
+  }
+  body[data-skin="hacker"]{
+    --bg:#000810; --bg-tile:#001a0e; --paper:#040a04; --ink:#bfffd8;
+    --muted:#5fcb87; --hot:#ff00aa; --cool:#00ffe0; --lime:#aaff00;
+    --rust:#ff7a00; --bevel-lt:#3aff8a; --bevel-dk:#003a18;
+    --link:#00ffe0; --link-v:#aaff00; --frame:#aaff00;
+  }
+  body[data-skin="sunset"]{
+    --bg:#1a0030; --bg-tile:#2a0048; --paper:#fff3e0; --ink:#1a0030;
+    --muted:#8a4a8a; --hot:#ff5a3a; --cool:#7a3aff; --lime:#ffd23a;
+    --rust:#ff8a00; --bevel-lt:#ffe8c0; --bevel-dk:#3a0060;
+    --link:#5a1aff; --link-v:#bf2aff; --frame:#ffd23a;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font:14px/1.4 "Trebuchet MS", Tahoma, Verdana, sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 8px 8px, var(--bg-tile) 1.5px, transparent 2px) 0 0/16px 16px,
+      var(--bg);
+    min-height:100vh;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><polygon points='2,2 2,16 6,12 9,18 11,17 8,11 14,11' fill='black' stroke='white' stroke-width='1.2' stroke-linejoin='round'/></svg>") 2 2, auto;
+  }
+  body[data-cursor="sparkle"]{
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><polygon points='14,2 16,12 26,14 16,16 14,26 12,16 2,14 12,12' fill='%23ff2e93' stroke='black' stroke-width='1'/></svg>") 14 14, auto;
+  }
+  a{ color:var(--link); text-decoration:underline }
+  a:visited{ color:var(--link-v) }
+
+  .bevel{
+    background:var(--paper);
+    border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    box-shadow:
+      inset 1px 1px 0 #fff8,
+      inset -1px -1px 0 #0003,
+      4px 4px 0 #0003;
+  }
+  .bevel-in{
+    background:var(--paper);
+    border:2px solid;
+    border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    box-shadow: inset 1px 1px 0 #0003;
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px; font:bold 13px/1 "Trebuchet MS",sans-serif;
+    background:linear-gradient(180deg, var(--paper) 0%, var(--bg) 100%);
+    color:var(--ink);
+    border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    box-shadow: 2px 2px 0 #0004;
+    cursor:pointer; user-select:none; text-decoration:none;
+  }
+  .btn:active{
+    border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    transform:translate(1px,1px); box-shadow:1px 1px 0 #0004;
+  }
+  .btn-hot{ background:linear-gradient(180deg,var(--hot),#c0006a); color:#fff; text-shadow:1px 1px 0 #0006 }
+  .btn-cool{ background:linear-gradient(180deg,var(--cool),#0096b8); color:#001a22; }
+  .btn-lime{ background:linear-gradient(180deg,var(--lime),#7fa600); color:#1a2200; }
+
+  .panel{ padding:10px 12px 12px }
+  .panel-h{
+    margin:-10px -12px 10px;
+    padding:5px 12px;
+    background: repeating-linear-gradient(90deg, var(--frame) 0 6px, color-mix(in oklab, var(--frame) 60%, #000) 6px 12px);
+    color:#fff; text-shadow:1px 1px 0 #0007;
+    font:bold 12px/1.2 "Trebuchet MS",sans-serif; letter-spacing:.04em; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--bevel-dk);
+  }
+  .panel-h .x{
+    background:var(--paper); color:#000; border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    width:18px; height:16px; font:bold 11px/1 "Tahoma"; display:grid; place-items:center;
+    cursor:pointer;
+  }
+
+  .wordart{
+    font-family: "Comic Sans MS","Comic Sans",cursive;
+    font-weight: 900;
+    font-size: 64px;
+    letter-spacing:-.02em;
+    line-height:.9;
+    background: linear-gradient(180deg, #ffe600 0%, #ff6a00 35%, var(--hot) 70%, #6a00ff 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke: 2px #1a0033;
+    filter: drop-shadow(3px 3px 0 #000) drop-shadow(0 0 0 #000);
+    transform:skewX(-6deg);
+    display:inline-block;
+    text-decoration:none;
+  }
+  .wordart .it{
+    background: linear-gradient(180deg, var(--cool), #0096b8 60%, var(--hot));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke: 2px #1a0033;
+  }
+
+  .ticker{
+    background:#000; color:var(--lime);
+    font-family:"Courier New", monospace;
+    font-size:13px; padding:6px 0; overflow:hidden; white-space:nowrap;
+    border-top:2px solid var(--bevel-lt); border-bottom:2px solid var(--bevel-dk);
+  }
+  .ticker .roll{ display:inline-block; padding-left:100%; animation:tick 38s linear infinite; }
+  body[data-marquee="off"] .ticker .roll{ animation:none; padding-left:0 }
+  @keyframes tick{ from{transform:translateX(0)} to{transform:translateX(-100%)} }
+  .ticker .star{ color:var(--hot); margin:0 14px }
+  .ticker .hit{ color:#fff; font-weight:bold }
+
+  .viz{ display:inline-flex; align-items:flex-end; gap:2px; height:18px }
+  .viz i{ width:3px; background:var(--lime); display:block; animation:viz 1.1s ease-in-out infinite }
+  .viz i:nth-child(1){ animation-delay:.0s }
+  .viz i:nth-child(2){ animation-delay:.15s; background:var(--cool) }
+  .viz i:nth-child(3){ animation-delay:.3s; background:var(--hot) }
+  .viz i:nth-child(4){ animation-delay:.45s; background:var(--lime) }
+  .viz i:nth-child(5){ animation-delay:.6s; background:var(--cool) }
+  .viz i:nth-child(6){ animation-delay:.75s; background:var(--hot) }
+  .viz i:nth-child(7){ animation-delay:.9s; background:var(--lime) }
+  body[data-playing="false"] .viz i{ animation-play-state:paused; height:3px !important }
+  @keyframes viz{ 0%,100%{height:3px} 50%{height:18px} }
+
+  .blink{ animation: blinker 1s steps(2,start) infinite }
+  @keyframes blinker{ to{ visibility:hidden } }
+
+  .pixel-divider{
+    height:14px;
+    background:
+      linear-gradient(90deg, var(--hot) 0 12%, var(--cool) 12% 24%, var(--lime) 24% 36%, var(--rust) 36% 48%, var(--hot) 48% 60%, var(--cool) 60% 72%, var(--lime) 72% 84%, var(--rust) 84% 100%);
+    image-rendering: pixelated;
+    border-top:1px solid #000; border-bottom:1px solid #000;
+  }
+
+  .frame{ max-width:1200px; margin:0 auto; padding:14px 14px 110px; }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; gap:14px;
+    background: repeating-linear-gradient(45deg, var(--hot) 0 12px, #000 12px 14px, var(--cool) 14px 26px, #000 26px 28px);
+    border-bottom:3px solid #000;
+  }
+  .topbar .navwrap{
+    background:var(--paper); padding:6px 10px;
+    border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    display:flex; gap:4px; flex-wrap:wrap; align-items:center;
+  }
+  .navlink{
+    font:bold 13px/1 "Trebuchet MS"; padding:6px 10px;
+    background:linear-gradient(180deg,var(--paper),var(--bg));
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    color:var(--ink); text-decoration:none; cursor:pointer;
+  }
+  .navlink.active{ background:linear-gradient(180deg, var(--lime), #7fa600); }
+
+  .hero{ display:grid; grid-template-columns: 1.4fr 1fr; gap:14px; margin-top:14px; }
+  .hero-l{ padding:18px 22px }
+  .hero-r{ padding:14px }
+  .tag{ font: italic 18px/1.3 "Times New Roman", serif; color:var(--muted); margin: 6px 0 14px; }
+  .stat-strip{ display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:14px; }
+  .stat-strip > div{
+    padding:6px 8px; font:bold 11px/1.2 "Courier New",monospace;
+    background:var(--bg); border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    text-transform:uppercase;
+  }
+  .stat-strip b{ display:block; font:bold 22px/1 "Trebuchet MS"; color:var(--hot); }
+
+  .grid{ display:grid; grid-template-columns: 260px 1fr; gap:14px; margin-top:14px; }
+  .stack > * + *{ margin-top:14px }
+
+  .cards{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px }
+  .card{
+    background:var(--paper); padding:8px;
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    box-shadow: 3px 3px 0 #0004;
+    display:flex; flex-direction:column;
+  }
+  .card .art{ aspect-ratio:1/1; width:100%; background:#000; border:1px solid #000; position:relative; overflow:hidden; cursor:pointer }
+  .card .art .play-over{
+    position:absolute; inset:0; display:grid; place-items:center;
+    background:rgba(0,0,0,.55); opacity:0; transition:opacity .12s;
+  }
+  .card:hover .art .play-over{ opacity:1 }
+  .card .art .play-over .pbig{
+    width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+    background:linear-gradient(180deg,var(--lime),#7fa600);
+    border:3px solid #fff; box-shadow:3px 3px 0 #000;
+    font:900 22px/1 "Trebuchet MS"; color:#1a2200;
+  }
+  .tier-tag{
+    position:absolute; top:-2px; right:10px; z-index:2;
+    font:900 9px/1 "Courier New"; padding:5px 8px 11px;
+    text-align:center; min-width:48px;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+    border:1px solid #000; border-bottom:0;
+    box-shadow: 2px 3px 0 #0007;
+    border-left:2px solid #000; border-bottom:2px solid #000;
+    letter-spacing:.06em;
+  }
+  .tier-tag .num{ display:flex; align-items:center; gap:3px; font-size:13px; line-height:1; }
+  .tier-tag .num svg{ width:11px; height:11px; flex:0 0 auto; filter:drop-shadow(0 1px 0 #0008) }
+  .tier-tag .lbl{ font-size:9px; opacity:.95 }
+  .tier-tag .saves-tag{ font-size:8px; letter-spacing:.08em; opacity:.85; margin-top:-1px }
+  .tier-tiny  { background:var(--hot);  color:#fff }
+  .tier-small { background:var(--rust); color:#fff }
+  .tier-grow  { background:var(--lime); color:#1a2200 }
+  .tier-quiet { background:rgba(0,0,0,.55); color:#fff; font-weight:normal; letter-spacing:0 }
+  .tier-quiet .num{ font-size:11px; font-weight:bold }
+
+  .loc-strip{
+    display:flex; align-items:center; gap:6px; padding:5px 6px;
+    background:#000; color:var(--lime);
+    font:bold 11px/1 "Courier New"; text-transform:uppercase; letter-spacing:.05em;
+    border-left:2px solid #000; border-right:2px solid #000;
+  }
+  .loc-strip .flag{ font-size:14px; line-height:1; filter:saturate(1.2) }
+  .loc-strip .city{ color:#fff }
+  .loc-strip .country{ color:var(--cool) }
+  .loc-strip .km{ margin-left:auto; color:var(--lime) }
+  .card .meta{ padding:8px 2px 4px }
+  .card .name{ font:bold 15px/1.1 "Trebuchet MS"; color:var(--ink); margin:0 0 2px }
+  .card .name a{ color:inherit; text-decoration:none }
+  .card .genre{ font:10px/1.2 "Courier New"; color:var(--muted); text-transform:uppercase; letter-spacing:.04em }
+  .card .row{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap }
+  .card .plays{ font:10px/1 "Courier New"; color:var(--muted); margin-top:6px }
+
+  .match{
+    display:inline-flex; align-items:center; gap:4px;
+    font:900 10px/1 "Courier New"; padding:3px 5px;
+    background:#000; color:var(--lime); border:1px solid var(--lime);
+  }
+  .match.hi{ color:#000; background:var(--lime); border-color:#000 }
+  .match.mid{ color:#000; background:var(--cool); border-color:#000 }
+
+  .taste-row{ display:grid; grid-template-columns:80px 1fr auto; gap:6px; align-items:center; font:11px/1.2 "Courier New"; padding:4px 0 }
+  .taste-row .lbl{ text-transform:uppercase; color:var(--muted) }
+  .taste-row .bar{ height:8px; background:#0001; border:1px solid #000; position:relative }
+  .taste-row .bar i{ position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg, var(--cool), var(--hot)); }
+  .taste-row .v{ font-weight:bold; color:var(--ink) }
+  .chip{
+    display:inline-block; padding:3px 6px; margin:2px 3px 0 0;
+    font:bold 10px/1 "Courier New"; background:var(--paper);
+    border:1px solid #000; cursor:pointer; user-select:none;
+  }
+  .chip.on{ background:var(--lime); }
+  .chip.x{ background:var(--bg); color:var(--muted); opacity:.5 }
+
+  .spotlight{
+    border:3px solid #000; background:var(--paper);
+    box-shadow: 4px 4px 0 #0005, 8px 8px 0 var(--hot);
+    margin-bottom:14px;
+  }
+  .spotlight-banner{
+    display:flex; align-items:center; gap:10px;
+    padding:6px 12px; color:#fff;
+    background: repeating-linear-gradient(45deg, #000 0 8px, var(--hot) 8px 12px, #000 12px 20px, var(--cool) 20px 24px);
+    font:bold 12px/1 "Trebuchet MS"; text-transform:uppercase; letter-spacing:.06em;
+    text-shadow:1px 1px 0 #000;
+    border-bottom:2px solid #000;
+  }
+  .spotlight-banner .sb-star{ color:var(--lime); font-size:16px; -webkit-text-stroke:1px #000 }
+  .spotlight-banner .small{ font-weight:normal; text-transform:none; letter-spacing:0; opacity:.95 }
+  .spotlight-body{
+    display:grid; grid-template-columns: 220px 1fr 240px; gap:14px; padding:14px;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 28px, #0001 28px 29px),
+      var(--paper);
+  }
+  .sp-art{ position:relative; aspect-ratio:1/1; background:#000; border:2px solid #000; box-shadow:4px 4px 0 var(--cool) }
+  .sp-art .sp-play{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:84px; height:84px; border-radius:50%;
+    background:linear-gradient(180deg,var(--lime),#7fa600);
+    border:4px solid #000; box-shadow:4px 4px 0 #000;
+    font:900 16px/1 "Trebuchet MS"; color:#1a2200; cursor:pointer;
+  }
+  .sp-info{ min-width:0 }
+  .sp-name{
+    margin:6px 0 2px; font:900 38px/1 "Comic Sans MS","Trebuchet MS";
+    color:var(--ink); text-shadow:3px 3px 0 var(--hot);
+    letter-spacing:-.01em;
+  }
+  .sp-genre{ font:bold 12px/1 "Courier New"; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px }
+  .sp-quote{ font:italic 16px/1.4 "Times New Roman", serif; margin:4px 0 8px }
+  .sp-tags{ display:flex; flex-wrap:wrap; gap:0 }
+  .sp-flags{ display:flex; flex-wrap:wrap; gap:6px }
+  .flag-pill{
+    font:bold 10px/1 "Courier New"; padding:4px 7px;
+    background:#000; color:var(--lime); border:1px solid #000; letter-spacing:.04em;
+  }
+  .flag-pill.warm{ background:var(--hot); color:#fff }
+  .flag-pill.tier{ background:var(--lime); color:#1a2200 }
+  .sp-side{ border-left:2px dashed var(--muted); padding-left:14px; min-width:0; }
+  .sp-mini{
+    display:grid; grid-template-columns: 40px 1fr 18px; gap:8px; align-items:center;
+    padding:6px 4px; border-bottom:1px dotted var(--muted); cursor:pointer;
+  }
+  .sp-mini:last-child{ border-bottom:0 }
+  .sp-mini:hover{ background:var(--bg) }
+  .sp-mini-art{ width:40px; height:40px; background:#000; border:1px solid #000 }
+  .sp-mini-name{ font:bold 13px/1.1 "Trebuchet MS"; color:var(--ink) }
+  .sp-mini-play{ color:var(--hot); font:bold 14px/1 }
+
+  .page-h{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:14px 16px; margin:14px 0;
+    background: repeating-linear-gradient(135deg, var(--paper) 0 8px, var(--bg) 8px 12px);
+    border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    box-shadow: 4px 4px 0 #0004;
+  }
+  .page-h h1{ margin:0; font:italic 900 32px/1 "Times New Roman", serif; color:var(--ink); }
+  .page-h .crumb{ font:11px/1 "Courier New"; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px }
+  .page-h .lede{ margin:6px 0 0; font:14px/1.4 "Trebuchet MS"; color:var(--muted); max-width:560px }
+
+  .gate{
+    padding:32px 28px; text-align:center;
+    background: var(--paper);
+    border:3px solid #000;
+    box-shadow: 6px 6px 0 var(--hot), 12px 12px 0 var(--cool);
+  }
+  .gate h2{ margin:0 0 8px; font:900 38px/1 "Comic Sans MS","Trebuchet MS"; color:var(--ink); text-shadow:3px 3px 0 var(--hot); }
+  .gate p{ font:16px/1.5 "Trebuchet MS"; color:var(--ink); max-width:580px; margin:0 auto 14px }
+  .gate ul{ text-align:left; max-width:480px; margin:14px auto; font:14px/1.6 "Trebuchet MS"; padding-left:20px }
+  .gate ul li::marker{ color:var(--hot) }
+
+  .ap-hero{
+    display:grid; grid-template-columns: 280px 1fr; gap:18px;
+    padding:18px;
+    background: linear-gradient(135deg, var(--paper) 0%, var(--bg) 100%);
+    border:3px solid #000; box-shadow:5px 5px 0 #0005;
+  }
+  .ap-art{ aspect-ratio:1/1; background:#000; border:3px solid #000; box-shadow:5px 5px 0 var(--cool) }
+  .ap-name{ margin:0; font:900 56px/.95 "Comic Sans MS","Trebuchet MS"; text-shadow:3px 3px 0 var(--hot); letter-spacing:-.01em }
+  .ap-flags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px }
+  .ap-stats{ display:grid; grid-template-columns: repeat(4,1fr); gap:6px; margin-top:14px }
+  .ap-stats > div{
+    padding:6px 8px; font:bold 11px/1.2 "Courier New"; text-transform:uppercase;
+    background:var(--paper); border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+  }
+  .ap-stats b{ display:block; font:900 22px/1 "Trebuchet MS"; color:var(--hot); margin-top:2px }
+  .ap-bio{ font:15px/1.5 "Times New Roman", serif; color:var(--ink); margin:10px 0 0 }
+
+  .embed-wrap{ background:#000; border:2px solid #000; padding:8px; margin-top:14px }
+  .embed-wrap iframe{ width:100%; border:0; display:block; background:#000 }
+  .embed-wrap .embed-meta{ color:var(--lime); font:11px/1.3 "Courier New"; padding:6px 2px 0; text-transform:uppercase; letter-spacing:.05em }
+
+  .tracks{
+    border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    background:#000;
+  }
+  .tracks .row-t{
+    display:grid; grid-template-columns: 28px 36px 1fr 60px 60px 90px; gap:10px;
+    align-items:center; padding:7px 10px;
+    color:var(--lime); font:bold 12px/1 "Courier New";
+    border-bottom:1px solid #112;
+  }
+  .tracks .row-t:hover{ background:#0a1a0a }
+  .tracks .row-t.head{ color:#888; font-weight:normal; text-transform:uppercase; letter-spacing:.05em; background:#040a04 }
+  .tracks .row-t .pl{ width:22px; height:22px; display:grid; place-items:center; background:#000; border:1px solid var(--lime); color:var(--lime); cursor:pointer }
+  .tracks .row-t .pl:hover{ background:var(--lime); color:#000 }
+  .tracks .ttl{ color:#fff }
+  .tracks .row-t.playing .ttl{ color:var(--hot); font-weight:bold }
+  .tracks .dur, .tracks .plays{ color:#888 }
+
+  .me-hero{
+    display:grid; grid-template-columns: 200px 1fr 260px; gap:18px;
+    padding:18px;
+    background: var(--paper);
+    border:3px solid #000; box-shadow:5px 5px 0 var(--lime);
+  }
+  .me-avatar{
+    width:200px; height:200px; border:3px solid #000;
+    background: conic-gradient(from 215deg, var(--hot), var(--cool), var(--lime), var(--rust), var(--hot));
+    display:grid; place-items:center;
+    color:#fff; font:900 88px/1 "Comic Sans MS";
+    text-shadow:3px 3px 0 #000;
+  }
+  .me-handle{ margin:0; font:900 44px/1 "Comic Sans MS","Trebuchet MS"; text-shadow:3px 3px 0 var(--cool) }
+  .me-bio{ font:14px/1.5 "Trebuchet MS"; color:var(--ink) }
+  .me-stats{ display:grid; grid-template-columns: repeat(3,1fr); gap:6px; margin-top:8px }
+  .me-stats > div{
+    padding:6px 8px; font:bold 10px/1.2 "Courier New"; text-transform:uppercase;
+    background:var(--bg); border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+  }
+  .me-stats b{ display:block; font:900 20px/1 "Trebuchet MS"; color:var(--hot); margin-top:2px }
+
+  .gb-list{ display:grid; gap:8px }
+  .gb-entry{
+    padding:10px 12px; background:var(--paper);
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    box-shadow:2px 2px 0 #0003;
+  }
+  .gb-entry .gb-meta{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:baseline;
+    font:11px/1 "Courier New"; color:var(--muted); text-transform:uppercase;
+    margin-bottom:4px; padding-bottom:4px; border-bottom:1px dotted var(--muted);
+  }
+  .gb-entry .gb-meta b{ color:var(--hot); text-transform:none; font:bold 13px/1 "Trebuchet MS" }
+  .gb-entry p{ margin:0; font:14px/1.45 "Times New Roman", serif }
+  .gb-form{ padding:12px; background:var(--bg); border:2px dashed var(--frame); }
+  .gb-form textarea{
+    width:100%; min-height:80px; resize:vertical;
+    background:var(--paper); border:2px solid;
+    border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    padding:8px 10px; font:13px/1.4 "Trebuchet MS";
+  }
+
+  .role-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 8px; font:bold 11px/1 "Courier New";
+    background:#000; color:var(--lime); border:1px solid #000;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .role-pill.artist{ background:var(--hot); color:#fff }
+
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200;
+    display:grid; place-items:center; padding:20px;
+  }
+  .modal{
+    width:min(560px, 100%); max-height:90vh; overflow:auto;
+    background:var(--paper); border:3px solid #000;
+    box-shadow: 6px 6px 0 var(--hot), 12px 12px 0 var(--cool);
+  }
+  .modal-h{
+    background: repeating-linear-gradient(90deg, var(--frame) 0 6px, color-mix(in oklab, var(--frame) 60%, #000) 6px 12px);
+    color:#fff; text-shadow:1px 1px 0 #0007;
+    padding:8px 12px; font:bold 13px/1 "Trebuchet MS";
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid #000;
+  }
+  .modal-b{ padding:16px 18px }
+  .pay-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:8px }
+  .pay{
+    padding:14px 8px; text-align:center; cursor:pointer;
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    background:var(--paper); color:#000;
+    font:bold 12px/1.2 "Trebuchet MS";
+  }
+  .pay:hover{ outline:2px solid var(--lime) }
+  .pay.sel{ border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk); background:var(--lime) }
+  .pay .glyph{ display:block; font:900 22px/1 "Trebuchet MS"; margin-bottom:4px }
+  .pay.venmo  .glyph{ color:#3D95CE }
+  .pay.cash   .glyph{ color:#00D632 }
+  .pay.paypal .glyph{ color:#003087 }
+  .pay.stripe .glyph{ color:#635BFF }
+  .pay.apple  .glyph{ color:#000 }
+  .pay.zelle  .glyph{ color:#6D1ED4 }
+  .amt-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:6px }
+  .amt{
+    padding:10px 0; text-align:center; cursor:pointer;
+    background:var(--paper); border:2px solid;
+    border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    font:bold 14px/1 "Trebuchet MS";
+  }
+  .amt.sel{ background:linear-gradient(180deg,var(--hot),#c0006a); color:#fff; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk) }
+  .pay-detail{
+    margin-top:10px; padding:10px; background:var(--bg);
+    border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    font:13px/1.4 "Trebuchet MS";
+  }
+  .pay-detail b{ color:var(--hot) }
+
+  .field-row{ display:grid; grid-template-columns:120px 1fr; gap:8px; align-items:center; margin:6px 0 }
+  .field-row > label{ font:bold 11px/1 "Courier New"; text-transform:uppercase; color:var(--muted) }
+  .skill-toggle{
+    display:inline-flex; gap:4px; padding:5px 9px; cursor:pointer; user-select:none;
+    font:bold 11px/1 "Courier New"; text-transform:uppercase; letter-spacing:.04em;
+    background:var(--paper); color:#000;
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) var(--bevel-dk) var(--bevel-lt);
+    margin:2px;
+  }
+  .skill-toggle.on{ background:var(--lime); border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk) }
+  .genre-row{
+    display:grid; grid-template-columns: 140px 1fr; gap:10px; align-items:start;
+    padding:5px 0; border-bottom:1px dotted var(--muted);
+  }
+  .genre-row:last-child{ border-bottom:0 }
+  .genre-head{
+    font:900 11px/1 "Courier New"; padding:4px 8px;
+    background:var(--paper); border:2px solid; border-left-width:6px;
+    text-align:left; letter-spacing:.06em; align-self:start;
+  }
+  .genre-tags{ display:flex; flex-wrap:wrap; gap:0 }
+
+  .sb-list{ list-style:none; margin:0; padding:0; font:12px/1.4 "Trebuchet MS" }
+  .sb-list li{ padding:5px 0; border-bottom:1px dotted var(--muted); display:flex; align-items:center; gap:6px }
+  .sb-list li:last-child{ border-bottom:0 }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--lime); box-shadow:0 0 6px var(--lime); flex:0 0 auto }
+  .chart-row{ display:grid; grid-template-columns:18px 1fr auto; align-items:center; gap:6px; padding:5px 0; border-bottom:1px dotted var(--muted) }
+  .chart-row:last-child{ border-bottom:0 }
+  .chart-row .rank{ font:bold 14px/1 "Times New Roman", serif; color:var(--hot) }
+  .chart-row .arrow{ font:10px/1 "Courier New" }
+  .chart-row .up{ color:#0a8a3a } .chart-row .dn{ color:#aa1a1a }
+
+  .counter{
+    display:inline-flex; padding:4px;
+    background:#000; border:2px solid; border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+  }
+  .counter span{
+    display:inline-block; width:18px; padding:4px 0; text-align:center;
+    font:bold 18px/1 "Courier New", monospace; color:var(--lime); background:#0a1a0a;
+    border-right:1px solid #000;
+  }
+  .counter span:last-child{ border-right:0 }
+
+  .ads{ display:grid; grid-template-columns: 1fr 1fr; gap:10px }
+  .ad{
+    padding:10px 12px;
+    background: repeating-linear-gradient(0deg, transparent 0 22px, #0001 22px 23px), var(--paper);
+    border:1px dashed var(--muted); position:relative;
+  }
+  .ad .pin{
+    position:absolute; left:-6px; top:-6px; width:18px; height:18px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #fff, var(--hot) 60%, #6a0033);
+    border:1px solid #000; box-shadow:1px 1px 0 #0006;
+  }
+  .ad-tag{
+    display:inline-block; font:bold 10px/1 "Courier New"; padding:3px 6px;
+    background:var(--cool); color:#000; border:1px solid #000; margin-bottom:6px;
+  }
+  .ad-tag.tag-vox{ background:var(--hot); color:#fff }
+  .ad-tag.tag-prod{ background:var(--lime); color:#000 }
+  .ad-tag.tag-art{ background:var(--rust); color:#fff }
+  .ad h4{ margin:0 0 4px; font: 700 15px/1.2 "Times New Roman", serif }
+  .ad p{ margin:0 0 6px; font:13px/1.35 "Trebuchet MS"; color:var(--ink) }
+  .ad .who{ font:11px/1 "Courier New"; color:var(--muted); display:flex; gap:8px; align-items:center }
+
+  /* d3 scene map — military / radar HUD */
+  .mil-map{
+    position:relative; aspect-ratio:2/1;
+    background: radial-gradient(ellipse at 50% 50%, #002a18 0%, #00170c 50%, #000503 100%);
+    border:2px solid #00ff88;
+    box-shadow: inset 0 0 80px rgba(0,40,20,.9), 0 0 0 1px #000, 0 0 0 4px #1a0033;
+    overflow:hidden; font-family:"Courier New", monospace; color:#00ff88;
+    user-select:none;
+  }
+  .mil-map svg{ display:block; width:100%; height:100%; cursor:grab }
+  .mil-map svg.dragging{ cursor:grabbing }
+  .mil-map .scanlines{
+    position:absolute; inset:0; pointer-events:none; z-index:6;
+    background: repeating-linear-gradient(0deg, rgba(0,255,136,.07) 0 1px, transparent 1px 3px);
+    mix-blend-mode:screen;
+  }
+  .mil-map .vignette{
+    position:absolute; inset:0; pointer-events:none; z-index:5;
+    background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,.85) 100%);
+  }
+  .mil-map .corner{
+    position:absolute; width:24px; height:24px; pointer-events:none; z-index:7;
+    border:2px solid #00ff88;
+  }
+  .mil-map .corner.tl{ top:6px; left:6px;   border-right:0; border-bottom:0 }
+  .mil-map .corner.tr{ top:6px; right:6px;  border-left:0;  border-bottom:0 }
+  .mil-map .corner.bl{ bottom:6px; left:6px;  border-right:0; border-top:0 }
+  .mil-map .corner.br{ bottom:6px; right:6px; border-left:0;  border-top:0 }
+  .mil-map .hud-top, .mil-map .hud-bot{
+    position:absolute; left:38px; right:38px; z-index:8;
+    display:flex; justify-content:space-between; gap:10px; align-items:center;
+    font:bold 10px/1.2 "Courier New"; letter-spacing:.08em;
+    color:#00ff88; text-transform:uppercase; pointer-events:none;
+  }
+  .mil-map .hud-top{ top:14px }
+  .mil-map .hud-bot{ bottom:14px }
+  .mil-map .hud-pill{
+    display:inline-block; padding:2px 6px; border:1px solid #00ff88;
+    background:rgba(0,40,20,.7); color:#00ff88;
+  }
+  .mil-map .hud-pill.live{ background:#00ff88; color:#000; animation: hud-blink 1.4s steps(1,end) infinite }
+  @keyframes hud-blink{ 50%{ opacity:.35 } }
+  .mil-graticule{ stroke:#00ff88; stroke-width:.5; stroke-opacity:.22; fill:none }
+  .mil-equator{ stroke:#caff00; stroke-opacity:.55; stroke-width:.9; stroke-dasharray:8 6; fill:none }
+  .mil-land{
+    fill: rgba(0,255,136,.05); stroke:#00ff88; stroke-width:1.4;
+    stroke-dasharray:3 3; vector-effect:non-scaling-stroke;
+  }
+  .mil-sphere{ fill:none; stroke:#00ff88; stroke-width:1.2; stroke-opacity:.5 }
+  .mil-pin{ cursor:pointer }
+  .mil-pin .core{ stroke:#000; stroke-width:1.2 }
+  .mil-pin .pulse{ fill:none; stroke-width:1.2; transform-origin:center; transform-box:fill-box; animation: pulse-ring 2.4s ease-out infinite }
+  .mil-pin.fast .pulse{ animation-duration:1.2s }
+  @keyframes pulse-ring{ 0%{transform:scale(.7); opacity:1} 100%{transform:scale(2.6); opacity:0} }
+  .mil-label{
+    fill:#caffd8; stroke:#000; stroke-width:3; paint-order:stroke fill;
+    font:bold 11px/1 "Courier New"; letter-spacing:.05em;
+    text-transform:uppercase; pointer-events:none;
+  }
+  .mil-label.dim{ fill:#5fcf99; font-size:9px }
+  .mil-tip{
+    position:absolute; pointer-events:none; z-index:9;
+    transform: translate(14px, -100%);
+    background:#000; color:#00ff88; border:1px solid #00ff88;
+    font:11px/1.4 "Courier New"; padding:6px 8px; min-width:200px;
+  }
+  .mil-tip b{ color:#caff00 } .mil-tip .v{ color:#fff }
+  .mil-tip .ln{ height:1px; background:#00ff88; opacity:.35; margin:5px 0 }
+  .mil-tip .row{ display:flex; justify-content:space-between; gap:14px }
+  .mil-controls{
+    display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+    padding:8px; background:#001408;
+    border:2px solid; border-color:#00ff88 #003a20 #003a20 #00ff88;
+    font:bold 11px "Courier New"; letter-spacing:.08em; text-transform:uppercase;
+    color:#00ff88; margin-top:10px;
+  }
+  .mil-controls .lbl{ color:#5fcf99 }
+  .mil-controls .btn-r{
+    background:transparent; color:#00ff88; border:1px solid #00ff88;
+    padding:5px 10px; font:bold 11px "Courier New"; letter-spacing:.08em; cursor:pointer;
+    text-transform:uppercase;
+  }
+  .mil-controls .btn-r:hover{ background:rgba(0,255,136,.15) }
+  .mil-controls .btn-r.on{ background:#00ff88; color:#000 }
+  .mil-controls .btn-r.alt{ border-color:#00d4ff; color:#00d4ff }
+  .mil-controls .btn-r.alt.on{ background:#00d4ff; color:#000 }
+  .mil-controls .btn-r.danger{ border-color:#ff2e93; color:#ff2e93 }
+  .mil-controls .btn-r.danger.on{ background:#ff2e93; color:#000 }
+
+  .scene-leader{
+    display:grid; grid-template-columns: 28px 1fr auto auto; gap:8px;
+    align-items:center; padding:6px 8px;
+    border-bottom:1px dotted var(--muted); font:12px/1.2 "Trebuchet MS";
+  }
+  .scene-leader:last-child{ border-bottom:0 }
+  .scene-leader .rk{ font:bold 14px/1 "Times New Roman"; color:var(--hot); text-align:right }
+  .scene-leader .pct{ font:bold 11px/1 "Courier New"; padding:2px 6px; border:1px solid #000 }
+  .scene-leader .pct.fast{ background:var(--hot); color:#fff }
+  .scene-leader .pct.med{  background:var(--lime); color:#000 }
+  .scene-leader .pct.chill{background:var(--cool); color:#000 }
+
+  .upload{
+    border:3px dashed var(--frame); padding:18px 14px; text-align:center;
+    background: repeating-linear-gradient(45deg, transparent 0 10px, #0001 10px 11px), var(--paper);
+  }
+  .upload h3{ margin:0 0 6px; font:bold 22px/1 "Comic Sans MS","Trebuchet MS"; color:var(--hot); text-shadow:2px 2px 0 #000; }
+  .upload p{ margin:0 0 10px; font:13px/1.35 "Trebuchet MS"; color:var(--ink) }
+
+  .player{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:linear-gradient(180deg, #2a2a2a, #060606);
+    border-top:2px solid var(--bevel-lt);
+    padding:8px 14px;
+    display:grid; grid-template-columns: 64px 1fr auto auto auto; gap:14px; align-items:center;
+    color:#fff;
+    box-shadow:0 -3px 0 #0006;
+  }
+  .player .cd{
+    width:54px; height:54px; border-radius:50%;
+    background: conic-gradient(from 0deg, #222, #555, #222, #555, #222, #555, #222);
+    border:2px solid #000; position:relative;
+    animation:spin 6s linear infinite;
+  }
+  body[data-playing="false"] .player .cd{ animation-play-state:paused }
+  .player .cd::before{ content:""; position:absolute; inset:35%; border-radius:50%; background:#888; border:2px solid #000 }
+  .player .cd::after{ content:""; position:absolute; inset:46%; border-radius:50%; background:#000 }
+  @keyframes spin{ to{transform:rotate(360deg)} }
+  .player .info{
+    background:#000; border:1px solid var(--lime);
+    padding:6px 10px; font:bold 13px/1.3 "Courier New"; color:var(--lime);
+    overflow:hidden;
+  }
+  .player .info .who{ color:var(--cool) }
+  .player .info .small{ color:#888; font-weight:normal; font-size:11px; margin-top:2px }
+  .player-ctl{ display:flex; gap:6px }
+  .pbtn{
+    width:36px; height:32px; display:grid; place-items:center;
+    background:linear-gradient(180deg,#cfcfcf,#7a7a7a);
+    border:2px solid; border-color:#fff #000 #000 #fff;
+    color:#000; font:bold 14px/1 "Tahoma"; cursor:pointer;
+  }
+  .pbtn:active{ border-color:#000 #fff #fff #000 }
+  .pbtn.big{ width:44px; height:36px; }
+  .player .meter{
+    width:200px; height:18px; background:#000; border:1px solid var(--lime); padding:1px;
+    display:flex; align-items:flex-end; gap:1px;
+  }
+  .player .meter i{ flex:1; background:linear-gradient(0deg, var(--lime), var(--cool)); }
+
+  .tabs{ display:flex; gap:2px; padding:0 6px; margin-bottom:-2px; position:relative; z-index:2; }
+  .tab{
+    font:bold 13px/1 "Trebuchet MS"; padding:8px 14px 10px;
+    background:linear-gradient(180deg,var(--bg),var(--paper));
+    border:2px solid; border-color:var(--bevel-lt) var(--bevel-dk) transparent var(--bevel-lt);
+    color:var(--ink); cursor:pointer; user-select:none;
+    border-bottom:0; margin-bottom:0;
+  }
+  .tab.active{ background:var(--paper); padding-bottom:12px; transform:translateY(2px); }
+
+  .construction{
+    display:flex; align-items:center; gap:10px; padding:6px 10px;
+    background: repeating-linear-gradient(45deg, #ffd23a 0 12px, #000 12px 18px);
+    color:#000; font:bold 12px/1.2 "Trebuchet MS"; text-transform:uppercase;
+    border:2px solid #000;
+  }
+  .construction .pill{ background:#fff; padding:3px 8px; border:1px solid #000; letter-spacing:.04em; }
+  body[data-construction="off"] .construction{ display:none }
+
+  .badges{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px }
+  .badge88{
+    width:88px; height:31px; padding:3px 6px; font:bold 9px/1.05 "Courier New";
+    display:grid; align-content:center; border:1px solid #000;
+    text-transform:uppercase; text-align:center;
+  }
+  .badge88.a{ background:#000; color:var(--lime) }
+  .badge88.b{ background:var(--hot); color:#fff }
+  .badge88.c{ background:var(--cool); color:#000 }
+  .badge88.d{ background:var(--lime); color:#000 }
+  .badge88.e{ background:#fff; color:#000 }
+
+  .siteft{ margin-top:14px; padding:14px; text-align:center; font:12px/1.5 "Times New Roman", serif; color:var(--muted); }
+  .siteft a{ color:var(--link) }
+
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+  .spacer{ flex:1 }
+  .small{ font:11px/1.3 "Courier New" }
+  .upper{ text-transform:uppercase; letter-spacing:.06em }
+  h2.section{
+    margin:0 0 6px; font:italic 700 22px/1 "Times New Roman", serif;
+    color:var(--ink); display:flex; align-items:baseline; gap:8px;
+  }
+  h2.section .deco{ flex:1; height:1px; background:repeating-linear-gradient(90deg, var(--ink) 0 4px, transparent 4px 8px) }
+
+  .heart{ color:var(--hot) }
+  .field{
+    background:var(--paper); border:2px solid;
+    border-color:var(--bevel-dk) var(--bevel-lt) var(--bevel-lt) var(--bevel-dk);
+    padding:5px 8px; font:13px/1.2 "Trebuchet MS";
+  }
+  .tipbox{ display:grid; grid-template-columns: repeat(4, 1fr) auto; gap:6px; margin-top:6px; }
+  .tipbox .btn{ padding:6px 0; justify-content:center }
+  .uploadgrid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px }
+
+  /* settings drawer (theme/marquee/etc.) */
+  .settings-toggle{
+    position:fixed; right:14px; bottom:80px; z-index:120;
+  }
+  .settings-drawer{
+    position:fixed; right:14px; bottom:124px; z-index:120;
+    width:280px; max-height:70vh; overflow:auto;
+    background:var(--paper); color:var(--ink);
+    border:3px solid #000;
+    box-shadow:4px 4px 0 var(--hot), 8px 8px 0 var(--cool);
+  }
+  .settings-drawer[hidden]{ display:none }
+  .settings-section{
+    margin:10px 12px 4px;
+    font:bold 10px/1 "Courier New"; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted);
+    border-bottom:1px dotted var(--muted); padding-bottom:3px;
+  }
+  .settings-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px; padding:4px 12px;
+    font:13px/1.2 "Trebuchet MS";
+  }
+  .settings-radio{ padding:4px 12px 8px }
+  .settings-radio .lbl{
+    font:bold 10px/1 "Courier New"; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--muted); margin-bottom:4px;
+  }
+  .settings-radio .opts{ display:flex; flex-wrap:wrap; gap:4px }
+</style>
+</head>
+<body data-skin="bubblegum" data-marquee="on" data-construction="on" data-cursor="default" data-playing="true">
+
+<!-- album art SVG defs (geometric placeholders) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="art1" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ff2e93"/><circle cx="50" cy="50" r="32" fill="#caff00" stroke="#000" stroke-width="2"/><circle cx="50" cy="50" r="16" fill="#00d4ff" stroke="#000" stroke-width="2"/><circle cx="50" cy="50" r="3" fill="#000"/></symbol>
+    <symbol id="art2" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1a0033"/><polygon points="50,10 90,90 10,90" fill="#caff00" stroke="#fff" stroke-width="2"/><circle cx="50" cy="62" r="14" fill="#ff2e93"/></symbol>
+    <symbol id="art3" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d4ff"/><rect x="14" y="14" width="72" height="72" fill="none" stroke="#1a0033" stroke-width="3"/><rect x="28" y="28" width="44" height="44" fill="#ff6a00"/><rect x="40" y="40" width="20" height="20" fill="#1a0033"/></symbol>
+    <symbol id="art4" viewBox="0 0 100 100"><rect width="100" height="100" fill="#caff00"/><path d="M0 60 Q25 30 50 60 T100 60 V100 H0 Z" fill="#1a0033"/><circle cx="74" cy="28" r="14" fill="#ff2e93" stroke="#000" stroke-width="2"/></symbol>
+    <symbol id="art5" viewBox="0 0 100 100"><rect width="100" height="100" fill="#6a00ff"/><g stroke="#caff00" stroke-width="2" fill="none"><circle cx="50" cy="50" r="10"/><circle cx="50" cy="50" r="22"/><circle cx="50" cy="50" r="34"/><circle cx="50" cy="50" r="46"/></g><circle cx="50" cy="50" r="6" fill="#ff2e93"/></symbol>
+    <symbol id="art6" viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/><g><rect x="0" y="0" width="50" height="50" fill="#ff2e93"/><rect x="50" y="50" width="50" height="50" fill="#00d4ff"/><rect x="50" y="0" width="50" height="50" fill="#caff00"/><rect x="0" y="50" width="50" height="50" fill="#1a0033"/></g><circle cx="50" cy="50" r="14" fill="#fff" stroke="#000" stroke-width="2"/></symbol>
+    <symbol id="art7" viewBox="0 0 100 100"><rect width="100" height="100" fill="#000"/><g fill="#ff6a00"><polygon points="50,12 58,42 88,42 64,60 72,90 50,72 28,90 36,60 12,42 42,42"/></g><circle cx="50" cy="50" r="6" fill="#caff00"/></symbol>
+    <symbol id="art8" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ffd23a"/><path d="M10 80 L40 30 L60 60 L90 20 L90 80 Z" fill="#1a0033"/><circle cx="74" cy="28" r="10" fill="#ff2e93"/></symbol>
+    <symbol id="art9" viewBox="0 0 100 100"><rect width="100" height="100" fill="#003a3a"/><g fill="none" stroke="#00ffe0" stroke-width="2"><path d="M0 70 L20 50 L40 60 L60 30 L80 50 L100 25"/><path d="M0 80 L20 65 L40 72 L60 50 L80 65 L100 45"/></g><circle cx="20" cy="50" r="3" fill="#caff00"/><circle cx="60" cy="30" r="3" fill="#caff00"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <a class="wordart" href="#/">music s<span class="it">IT</span></a>
+  <div class="navwrap" id="nav"><!-- rendered by JS --></div>
+</div>
+
+<div class="ticker" aria-hidden="true">
+  <div class="roll" id="ticker-roll"><!-- rendered by JS --></div>
+</div>
+
+<div class="frame">
+  <div class="construction">
+    <span class="pill">⚠ under construction</span>
+    <span>v0.4 beta · still painting the walls · drop a track anyway</span>
+    <span class="spacer"></span>
+    <span class="pill blink">live</span>
+  </div>
+  <div id="app"><!-- rendered by JS based on hash route --></div>
+  <div class="siteft">
+    <div>
+      <a href="#/guestbook">guestbook</a> · <a href="#">about</a> · <a href="#">artist FAQ</a> ·
+      <a href="#">how the tip jar works</a> · <a href="#">our rules (mostly: be nice)</a>
+    </div>
+    <div style="margin-top:6px">
+      best viewed in <b>any browser, any year</b> · made by humans, hosted in a basement · ♥ <span class="blink">♥</span> ♥
+    </div>
+  </div>
+</div>
+
+<div class="player" id="player"><!-- rendered by JS --></div>
+<div id="modal-root"></div>
+
+<button class="btn btn-hot settings-toggle" id="settings-toggle"
+        style="font:bold 12px/1 'Courier New'; letter-spacing:.06em; text-transform:uppercase;">
+  ★ tweaks
+</button>
+<div class="settings-drawer" id="settings-drawer" hidden>
+  <div class="panel-h">
+    <span>♦ tweaks</span>
+    <span class="x" data-action="close-settings">×</span>
+  </div>
+  <div id="settings-body"><!-- rendered by JS --></div>
+</div>
+
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
