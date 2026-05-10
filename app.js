@@ -107,6 +107,30 @@ const SEED = {
       payment_handles: { paypal:"low@example.jp" },
       created_at: Date.now() - 1000*60*60*24*150,
     },
+    // ★ Real, verified-playable artist for testing the embed feature.
+    // Forss is a Swedish electronic/downtempo project; "Flickermood" is a
+    // Creative Commons release that's been on SoundCloud since the early
+    // SoundCloud days and is widely embedded in tutorials.
+    forss: {
+      handle: "forss", role: "artist", display_name: "Forss",
+      bio: "downtempo / electronic. real artist included as an embed test — press play, you should actually hear music.",
+      city: "Stockholm", country: "SE", flag: "🇸🇪", lat: 59.3, lng: 18.0,
+      taste: { downtempo:1, electronic:1, ambient:.7, warm:.6 },
+      i_offer: ["production"], i_need: [], i_am: "producer",
+      payment_handles: {},
+      website_url: "https://soundcloud.com/forss",
+      created_at: Date.now() - 1000*60*60*24*365,
+    },
+    "908rb": {
+      handle: "908rb", role: "artist", display_name: "908RB",
+      bio: "real Mixcloud artist included as a second embed test. mixcloud.com/908RB",
+      city: "London", country: "GB", flag: "🇬🇧", lat: 51.5, lng: -0.1,
+      taste: { club:1, mix:1, electronic:1 },
+      i_offer: ["mix","DJ"], i_need: [], i_am: "DJ",
+      payment_handles: {},
+      website_url: "https://www.mixcloud.com/908RB/",
+      created_at: Date.now() - 1000*60*60*24*120,
+    },
   },
 
   // tracks. embed_url is a real URL the iframe loads.
@@ -170,6 +194,26 @@ const SEED = {
       genre: "club / ambient", tags: ["ambient","club","slow","warm"],
       price_label: "¥500+", open_to: ["feature","mix"],
       published_at: Date.now() - 1000*60*60*24*60 },
+    // ★ Real SoundCloud track. The toEmbedSrc() helper auto-wraps this
+    // public URL into the proper widget URL — pressing play on Forss's
+    // profile page should actually stream "Flickermood".
+    { id: "t_forss", artist_handle: "forss", title: "Flickermood",
+      embed_kind: "soundcloud",
+      embed_url: "https://soundcloud.com/forss/flickermood",
+      cover_art: "art5", note: "real test track — should actually play",
+      genre: "downtempo / electronic", tags: ["downtempo","electronic","ambient","warm"],
+      price_label: "free (CC)", open_to: [],
+      published_at: Date.now() - 1000*60*60*24*365 },
+    // Mixcloud test. The provided URL is a user/profile feed; Mixcloud's
+    // widget renders the user's latest show. For a specific show, paste the
+    // full show URL like mixcloud.com/908RB/some-show-name/
+    { id: "t_908rb", artist_handle: "908rb", title: "Latest Mix",
+      embed_kind: "mixcloud",
+      embed_url: "https://www.mixcloud.com/908RB/",
+      cover_art: "art2", note: "real Mixcloud test — auto-embed",
+      genre: "club / mix", tags: ["club","mix","electronic"],
+      price_label: "free", open_to: [],
+      published_at: Date.now() - 1000*60*60*24*30 },
   ],
 
   collabs: [
@@ -257,6 +301,50 @@ const GENRES = [
   { group:"hip-hop & beats", color:"#ff8a00",    tags:["boom-bap","abstract-rap","lo-fi","beat-tape","jazz-rap","cloud"] },
   { group:"moods",         color:"var(--muted)", tags:["slow","warm","melodic","dense","bedroom","diy","vocal"] },
 ];
+
+// ISO 3166-1 alpha-2 codes + display names, sorted by name.
+// Pick from this list for the country dropdown; flag is derived at render time.
+const COUNTRIES = [
+  ["AR","Argentina"],["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BR","Brazil"],
+  ["BG","Bulgaria"],["CA","Canada"],["CL","Chile"],["CN","China"],["CO","Colombia"],
+  ["HR","Croatia"],["CZ","Czechia"],["DK","Denmark"],["DO","Dominican Republic"],["EG","Egypt"],
+  ["EE","Estonia"],["FI","Finland"],["FR","France"],["GE","Georgia"],["DE","Germany"],
+  ["GH","Ghana"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IS","Iceland"],
+  ["IN","India"],["ID","Indonesia"],["IE","Ireland"],["IL","Israel"],["IT","Italy"],
+  ["JM","Jamaica"],["JP","Japan"],["KE","Kenya"],["LV","Latvia"],["LT","Lithuania"],
+  ["LU","Luxembourg"],["MY","Malaysia"],["MX","Mexico"],["MA","Morocco"],["NL","Netherlands"],
+  ["NZ","New Zealand"],["NG","Nigeria"],["NO","Norway"],["PK","Pakistan"],["PE","Peru"],
+  ["PH","Philippines"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SA","Saudi Arabia"],
+  ["SN","Senegal"],["RS","Serbia"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],
+  ["ZA","South Africa"],["KR","South Korea"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],
+  ["TW","Taiwan"],["TH","Thailand"],["TR","Türkiye"],["UA","Ukraine"],["AE","UAE"],
+  ["GB","United Kingdom"],["US","United States"],["UY","Uruguay"],["VN","Vietnam"],
+];
+function flagFromCountry(code){
+  if(!code) return "";
+  const c = code.trim().toUpperCase();
+  if(!/^[A-Z]{2}$/.test(c)) return "";
+  return String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0)));
+}
+// Render flag for a profile: prefer the stored emoji (legacy seed data),
+// otherwise derive from the ISO country code so new signups always have one.
+function pflag(p){
+  if(!p) return "";
+  return p.flag || flagFromCountry(p.country);
+}
+function countryName(code){
+  const m = COUNTRIES.find(([k]) => k === (code||"").toUpperCase());
+  return m ? m[1] : code || "";
+}
+function countrySelectHtml(name, selected){
+  const sel = (selected||"").toUpperCase();
+  return `<select class="field" name="${name}">
+    <option value="">— pick a country —</option>
+    ${COUNTRIES.map(([code,label]) =>
+      `<option value="${code}" ${sel===code?"selected":""}>${flagFromCountry(code)} ${esc(label)}</option>`
+    ).join("")}
+  </select>`;
+}
 
 const TICKER_ITEMS = [
   ["★","NEW DROP", "saltvane — 'kelp room' just landed"],
@@ -402,33 +490,64 @@ function timeAgo(at){
 }
 
 /* ── embed URL → iframe HTML ───────────────────────────────────────────── */
+// Convert a public page URL into the proper iframe-player URL for each
+// service. Public pages (e.g. soundcloud.com/artist/track) refuse to be
+// framed, so we wrap them with the service's official widget URL.
+function toEmbedSrc(kind, raw){
+  const u = (raw||"").trim();
+  if(!u) return "";
+  if(kind === "youtube"){
+    if(/\/embed\//.test(u)) return u;
+    const m = u.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{6,})/);
+    return m ? `https://www.youtube.com/embed/${m[1]}` : u;
+  }
+  if(kind === "soundcloud"){
+    if(u.startsWith("https://w.soundcloud.com/player/")) return u;
+    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(u)}&color=%23ff2e93&auto_play=false&show_user=true`;
+  }
+  if(kind === "mixcloud"){
+    if(u.includes("/widget/iframe/")) return u;
+    return `https://www.mixcloud.com/widget/iframe/?feed=${encodeURIComponent(u)}&hide_cover=1&light=0`;
+  }
+  if(kind === "spotify"){
+    if(u.includes("open.spotify.com/embed/")) return u;
+    // turn https://open.spotify.com/track/ID into https://open.spotify.com/embed/track/ID
+    return u.replace("open.spotify.com/", "open.spotify.com/embed/");
+  }
+  if(kind === "bandcamp"){
+    return u; // Bandcamp embed URLs require an album/track ID; can't be derived from the page URL alone
+  }
+  return u;
+}
+
 function embedHtml(track){
   const u = (track.embed_url||"").trim();
   const k = track.embed_kind;
-  if(k==="bandcamp" && u){
-    return `<iframe src="${esc(u)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
+  const src = toEmbedSrc(k, u);
+  if(k==="bandcamp" && src && src.includes("EmbeddedPlayer")){
+    return `<iframe src="${esc(src)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="soundcloud" && u){
-    return `<iframe src="${esc(u)}" height="166" allow="autoplay" loading="lazy"></iframe>`;
+  if(k==="soundcloud" && src){
+    return `<iframe src="${esc(src)}" height="166" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="youtube" && u){
-    let src = u;
-    if(!/embed/.test(src)){
-      const m = src.match(/(?:v=|youtu\.be\/|shorts\/)([\w-]{6,})/);
-      if(m) src = `https://www.youtube.com/embed/${m[1]}`;
-    }
+  if(k==="youtube" && src){
     return `<iframe src="${esc(src)}" height="200" allow="autoplay; encrypted-media" loading="lazy" allowfullscreen></iframe>`;
   }
-  if(k==="mixcloud" && u){
-    return `<iframe src="${esc(u)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
+  if(k==="mixcloud" && src){
+    return `<iframe src="${esc(src)}" height="120" allow="autoplay" loading="lazy"></iframe>`;
   }
-  if(k==="spotify" && u){
-    return `<iframe src="${esc(u)}" height="152" allow="autoplay; encrypted-media" loading="lazy"></iframe>`;
+  if(k==="spotify" && src){
+    return `<iframe src="${esc(src)}" height="152" allow="autoplay; encrypted-media" loading="lazy"></iframe>`;
   }
-  // empty / external — show a placeholder block
-  return `<div class="small upper" style="color:var(--lime); padding:18px; text-align:center; background:#0d130d">
-    <div style="font:bold 14px/1.4 'Courier New'; margin-bottom:6px">[ no embed yet ]</div>
-    <div>this artist hasn't pasted a stream URL.${u ? ` external link: <a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--cool)">${esc(u)}</a>` : ""}</div>
+  // bandcamp without a real EmbeddedPlayer URL → fall through to the helper card
+  const link = u || "";
+  const hint = k==="bandcamp"
+    ? `Bandcamp embeds require the player URL — on the album's page, click <b>Share/Embed</b> → <b>Embed</b>, copy the iframe <code>src</code>, and paste that here.`
+    : `paste a public stream URL — Bandcamp / SoundCloud / Mixcloud / YouTube / Spotify all work.`;
+  return `<div class="small" style="color:var(--lime); padding:18px; text-align:center; background:#0d130d">
+    <div style="font:bold 14px/1.4 'Courier New'; margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em">[ no playable embed yet ]</div>
+    <div style="font-family:'Trebuchet MS',sans-serif">${hint}</div>
+    ${link ? `<div style="margin-top:8px"><a href="${esc(link)}" target="_blank" rel="noopener" style="color:var(--cool)">${esc(link)} ↗</a></div>` : ""}
   </div>`;
 }
 
@@ -1075,8 +1194,7 @@ function renderMe(){
         <div class="field-row"><label>display name</label><input class="field" name="display_name" value="${esc(u.display_name||"")}"/></div>
         <div class="field-row"><label>bio</label><input class="field" name="bio" value="${esc(u.bio||"")}"/></div>
         <div class="field-row"><label>city</label><input class="field" name="city" value="${esc(u.city||"")}"/></div>
-        <div class="field-row"><label>country</label><input class="field" name="country" value="${esc(u.country||"")}"/></div>
-        <div class="field-row"><label>flag emoji</label><input class="field" name="flag" value="${esc(u.flag||"")}"/></div>
+        <div class="field-row"><label>country</label>${countrySelectHtml("country", u.country||"")}</div>
         <div class="field-row"><label>i am a</label><input class="field" name="i_am" value="${esc(u.i_am||"")}"/></div>
         <div class="field-row"><label>i offer</label><input class="field" name="i_offer" placeholder="comma separated" value="${esc((u.i_offer||[]).join(", "))}"/></div>
         <div class="field-row"><label>i need</label><input class="field" name="i_need" placeholder="comma separated" value="${esc((u.i_need||[]).join(", "))}"/></div>
@@ -1130,8 +1248,10 @@ function renderMe(){
 }
 
 function renderWelcome(){
-  // pickable demo accounts so first-time visitors can try the app fully signed-in
-  const demos = ["tape_tooth","saltvane","mira_moss","konigswasser","chrome_plum"]
+  // pickable demo accounts so first-time visitors can try the app fully signed-in.
+  // forss is the verified-playable test artist — put it first so users can hit
+  // "play" and immediately confirm the embed feature works.
+  const demos = ["forss","tape_tooth","saltvane","mira_moss","konigswasser"]
     .map(h => profileBy(h)).filter(Boolean);
   const totalArtists = visibleProfiles().filter(p=>p.role==="artist").length;
   return `
@@ -1145,6 +1265,7 @@ function renderWelcome(){
         <div class="row">
           <a class="btn btn-hot" href="#/signup">+ create your profile</a>
           <a class="btn btn-cool" href="#/digs">▶ browse as guest</a>
+          <a class="btn btn-lime" href="#/artist/forss">♫ play a real test track</a>
         </div>
         <div class="stat-strip">
           <div><b>${totalArtists}</b>artists</div>
@@ -1183,78 +1304,38 @@ function renderWelcome(){
 }
 
 function renderSignup(){
-  // suggest a flag based on country if visible
   return `
     <div class="page-h">
       <div><div class="crumb">create your profile</div><h1>sign up</h1>
-        <p class="lede">no email, no algorithm — just pick a handle and tell us where you are. everything stays in your browser until you connect a database.</p></div>
+        <p class="lede">just pick a handle. add the rest whenever — it all stays editable.</p></div>
       <a class="btn" href="#/">cancel</a>
     </div>
-    <div class="bevel panel" style="max-width:680px; margin:0 auto">
-      <div class="panel-h"><span>♥ new profile</span><span class="x">×</span></div>
-      <form id="signup-form" autocomplete="off" style="display:grid; gap:8px">
+    <div class="bevel panel" style="max-width:560px; margin:0 auto">
+      <div class="panel-h"><span>♥ create profile</span><span class="x">×</span></div>
+      <form id="signup-form" autocomplete="off" style="display:grid; gap:10px">
         <div class="field-row"><label>handle <span style="color:var(--hot)">*</span></label>
-          <input class="field" name="handle" required pattern="[a-z0-9_\\-\\.]{2,24}" placeholder="lowercase, 2–24 chars" autofocus/></div>
-        <div class="field-row"><label>display name</label>
-          <input class="field" name="display_name" placeholder="(optional, defaults to handle)"/></div>
+          <input class="field" name="handle" required pattern="[a-z0-9_\\-\\.]{2,24}" placeholder="lowercase letters, numbers, _ - ." autofocus/></div>
         <div class="field-row"><label>i am a <span style="color:var(--hot)">*</span></label>
           <select class="field" name="role" required>
-            <option value="listener">listener (i'm here to dig)</option>
-            <option value="artist">artist (i make stuff)</option>
+            <option value="listener">listener — i'm here to dig</option>
+            <option value="artist">artist — i make stuff</option>
           </select></div>
-        <div class="field-row"><label>city</label>
-          <input class="field" name="city" placeholder="brooklyn"/></div>
-        <div class="field-row"><label>country</label>
-          <input class="field" name="country" placeholder="US"/></div>
-        <div class="field-row"><label>flag emoji</label>
-          <input class="field" name="flag" placeholder="🇺🇸" maxlength="4"/></div>
-        <div class="field-row"><label>bio</label>
-          <input class="field" name="bio" placeholder="one line about you"/></div>
-        <div class="field-row"><label>i offer</label>
-          <input class="field" name="i_offer" placeholder="comma-separated: mix, vocal, cover-art"/></div>
-        <div class="field-row"><label>i need</label>
-          <input class="field" name="i_need" placeholder="comma-separated: drums, feature"/></div>
+        <div class="field-row"><label>country</label>${countrySelectHtml("country","")}</div>
 
-        <fieldset style="border:1px dashed var(--muted); padding:10px; margin-top:6px">
-          <legend class="small upper" style="color:var(--muted)">links (optional)</legend>
-          <div class="field-row"><label>bandcamp</label><input class="field" name="bandcamp_url" placeholder="https://you.bandcamp.com"/></div>
-          <div class="field-row"><label>soundcloud</label><input class="field" name="soundcloud_url" placeholder="https://soundcloud.com/you"/></div>
-          <div class="field-row"><label>website</label><input class="field" name="website_url" placeholder="https://"/></div>
-          <div class="field-row"><label>atproto handle</label><input class="field" name="atproto_handle" placeholder="alice.bsky.social"/></div>
-        </fieldset>
-
-        <fieldset style="border:1px dashed var(--muted); padding:10px">
-          <legend class="small upper" style="color:var(--muted)">tip-jar handles (deep-linked, never touched by this site)</legend>
-          ${[
-            ["venmo","Venmo (@handle)"],
-            ["cashapp","Cash App ($handle)"],
-            ["paypal","PayPal email"],
-            ["stripe_url","Stripe payment URL"],
-          ].map(([k,l])=>`<div class="field-row"><label>${esc(l)}</label><input class="field" name="ph_${k}"/></div>`).join("")}
-        </fieldset>
-
-        <fieldset id="signup-track-fields" style="border:1px dashed var(--hot); padding:10px; display:none">
-          <legend class="small upper" style="color:var(--hot)">your first track (artist mode)</legend>
-          <p class="small" style="color:var(--muted); margin:0 0 6px">paste a stream URL — Bandcamp, SoundCloud, Mixcloud, YouTube, or Spotify. it'll embed inline as a real iframe player on your profile. you can add more after.</p>
-          <div class="field-row"><label>title</label><input class="field" name="first_track_title" placeholder="kelp room"/></div>
-          <div class="field-row"><label>stream URL</label><input class="field" name="first_track_url" placeholder="https://yourname.bandcamp.com/album/..."/></div>
-          <div class="field-row"><label>genre / scene</label><input class="field" name="first_track_genre" placeholder="bedroom drone"/></div>
-          <div class="field-row"><label>tags</label><input class="field" name="first_track_tags" placeholder="ambient, slow, warm"/></div>
-          <div class="field-row"><label>cover art</label>
-            <select class="field" name="first_track_art">
-              ${["art1","art2","art3","art4","art5","art6","art7","art8","art9"].map(a=>`<option value="${a}">${a}</option>`).join("")}
-            </select></div>
-          <div class="field-row"><label>tagline</label><input class="field" name="first_track_note" placeholder="4-track loops"/></div>
-          <div class="field-row"><label>price label</label><input class="field" name="first_track_price" placeholder="name your price"/></div>
+        <fieldset id="signup-track-fields" style="border:1px dashed var(--hot); padding:10px; display:none; margin-top:4px">
+          <legend class="small upper" style="color:var(--hot); padding:0 6px">got music online?</legend>
+          <p class="small" style="color:var(--muted); margin:0 0 8px">paste a Bandcamp, SoundCloud, Mixcloud, YouTube, or Spotify URL — we'll set up your first track from it. add more later.</p>
+          <input class="field" name="stream_url" placeholder="https://soundcloud.com/your-name/your-track" style="width:100%"/>
         </fieldset>
 
         <div id="signup-error" class="small" style="color:var(--hot); display:none"></div>
-        <div class="row" style="margin-top:10px">
+        <div class="row" style="margin-top:6px">
           <button class="btn btn-hot" type="submit">create profile →</button>
           <a class="btn" href="#/">cancel</a>
           <span class="spacer"></span>
-          <span class="small" style="color:var(--muted)">already have a handle? <a href="#" data-action="open-login-list">switch users ↓</a></span>
+          <span class="small" style="color:var(--muted)"><a href="#" data-action="open-login-list">existing user?</a></span>
         </div>
+        <p class="small" style="color:var(--muted); margin:6px 0 0">bio, links, tip-jar handles, more tracks — all editable from your profile after you sign up.</p>
       </form>
     </div>
   `;
@@ -1832,6 +1913,44 @@ function detectEmbedKind(url){
   return "external";
 }
 
+// Turn a slug like "kelp-room" or "my_track" into a Title Case-ish display.
+function humanize(s){
+  return (s||"").replace(/[-_+]/g," ").replace(/\s+/g," ").trim()
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Derive artist name + track title from a public stream URL. Lets us
+// pre-populate signup/upload forms so the user doesn't have to retype info
+// that's already in the URL they pasted. Fully client-side, no API calls.
+function inferFromStreamUrl(url){
+  const u = (url||"").trim();
+  if(!u) return { displayName:"", title:"", kind:"external" };
+  const kind = detectEmbedKind(u);
+  let displayName = "", title = "";
+  try {
+    if(kind === "soundcloud"){
+      // soundcloud.com/{user}[/{track}]
+      const m = u.match(/soundcloud\.com\/([^\/?#]+)(?:\/([^\/?#]+))?/i);
+      if(m){ displayName = humanize(m[1]); title = humanize(m[2]||""); }
+    } else if(kind === "mixcloud"){
+      // mixcloud.com/{user}[/{show}]
+      const m = u.match(/mixcloud\.com\/([^\/?#]+)(?:\/([^\/?#]+))?/i);
+      if(m){ displayName = humanize(m[1]); title = humanize(m[2]||"") || "Latest Mix"; }
+    } else if(kind === "bandcamp"){
+      // {user}.bandcamp.com[/(track|album)/{slug}]
+      const m = u.match(/(?:https?:\/\/)?([^.\/]+)\.bandcamp\.com(?:\/(?:track|album)\/([^\/?#]+))?/i);
+      if(m){ displayName = humanize(m[1]); title = humanize(m[2]||""); }
+    } else if(kind === "youtube"){
+      // YouTube: nothing meaningful in the URL beyond the video ID.
+      title = "";
+    } else if(kind === "spotify"){
+      const m = u.match(/spotify\.com\/(?:track|album|playlist)\/([^\/?#]+)/i);
+      if(m){ title = "Spotify " + (u.includes("/track/") ? "Track" : u.includes("/album/") ? "Album" : "Playlist"); }
+    }
+  } catch(e){ /* ignore */ }
+  return { displayName, title, kind };
+}
+
 function onUploadSubmit(e){
   e.preventDefault();
   const fd = new FormData(e.target);
@@ -1866,8 +1985,8 @@ function onProfileSubmit(e){
     display_name: fd.get("display_name")?.toString() || u.display_name,
     bio: fd.get("bio")?.toString() || "",
     city: fd.get("city")?.toString() || "",
-    country: fd.get("country")?.toString() || "",
-    flag: fd.get("flag")?.toString() || "",
+    country: (fd.get("country")?.toString() || "").toUpperCase(),
+    flag: flagFromCountry(fd.get("country")?.toString() || ""),
     i_am: fd.get("i_am")?.toString() || "",
     i_offer: (fd.get("i_offer")?.toString()||"").split(",").map(s=>s.trim()).filter(Boolean),
     i_need:  (fd.get("i_need")?.toString()||"").split(",").map(s=>s.trim()).filter(Boolean),
@@ -1908,65 +2027,63 @@ function onSignupSubmit(e){
     showErr("handle must be 2–24 chars: lowercase letters, digits, _ - or ."); return;
   }
   if (state.profiles[handle]){
-    showErr(`@${handle} already exists. pick another, or sign in via the tweaks drawer.`); return;
+    showErr(`@${handle} is taken. pick another, or use 'existing user?' to sign in.`); return;
   }
   const role = fd.get("role")?.toString() === "artist" ? "artist" : "listener";
-  const list = (k) => (fd.get(k)?.toString()||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const country = (fd.get("country")?.toString() || "").toUpperCase();
+  const streamUrl = (fd.get("stream_url")||"").toString().trim();
+  const inferred = inferFromStreamUrl(streamUrl);
+
+  // If they pasted a stream URL during signup, use the artist segment of the
+  // URL to pre-fill display_name (and pre-populate the platform's link field
+  // for that service). User can edit any of this immediately afterward.
+  const display_name = inferred.displayName || handle;
   const newProfile = {
-    handle,
-    role,
-    display_name: (fd.get("display_name")?.toString().trim()) || handle,
-    bio: fd.get("bio")?.toString() || "",
-    city: fd.get("city")?.toString() || "",
-    country: fd.get("country")?.toString() || "",
-    flag: fd.get("flag")?.toString() || "",
-    lat: 0, lng: 0,  // could geocode later
+    handle, role,
+    display_name,
+    bio: "",
+    city: "",
+    country,
+    flag: flagFromCountry(country),
+    lat: 0, lng: 0,
     taste: {},
-    i_offer: list("i_offer"),
-    i_need:  list("i_need"),
-    i_am: role,
+    i_offer: [], i_need: [], i_am: role,
     prefs: { sizeMax: 500, near: 5000, languages: ["en","any"] },
-    payment_handles: {
-      venmo:      fd.get("ph_venmo")?.toString() || "",
-      cashapp:    fd.get("ph_cashapp")?.toString() || "",
-      paypal:     fd.get("ph_paypal")?.toString() || "",
-      stripe_url: fd.get("ph_stripe_url")?.toString() || "",
-    },
-    bandcamp_url:   fd.get("bandcamp_url")?.toString() || "",
-    soundcloud_url: fd.get("soundcloud_url")?.toString() || "",
-    website_url:    fd.get("website_url")?.toString() || "",
-    atproto_handle: fd.get("atproto_handle")?.toString() || "",
+    payment_handles: {},
+    bandcamp_url:   inferred.kind==="bandcamp"   ? streamUrl : "",
+    soundcloud_url: inferred.kind==="soundcloud" ? streamUrl : "",
+    website_url:    "",
+    atproto_handle: "",
     created_at: Date.now(),
   };
   state.profiles[handle] = newProfile;
   state.current_user = handle;
 
-  // if artist & first-track URL provided, ship it immediately so they can see
-  // the embed working on their freshly minted profile page
-  let firstTrackId = null;
-  if (role === "artist") {
-    const url = (fd.get("first_track_url")||"").toString().trim();
-    if (url) {
-      firstTrackId = "t" + Math.random().toString(36).slice(2,8);
-      state.tracks.unshift({
-        id: firstTrackId,
-        artist_handle: handle,
-        title: fd.get("first_track_title")?.toString().trim() || "untitled",
-        embed_kind: detectEmbedKind(url),
-        embed_url: url,
-        cover_art: fd.get("first_track_art")?.toString() || "art1",
-        note: fd.get("first_track_note")?.toString() || "",
-        genre: fd.get("first_track_genre")?.toString() || "",
-        tags: list("first_track_tags"),
-        price_label: fd.get("first_track_price")?.toString() || "name your price",
-        open_to: [],
-        published_at: Date.now(),
-      });
-    }
+  // Artist + URL → publish the first track immediately so they land on a
+  // profile page with a working embed. If they're a listener and pasted a URL
+  // we just discard it (listener profiles don't have tracks).
+  let createdTrack = false;
+  if (role === "artist" && streamUrl) {
+    state.tracks.unshift({
+      id: "t" + Math.random().toString(36).slice(2,8),
+      artist_handle: handle,
+      title: inferred.title || "Untitled",
+      embed_kind: inferred.kind,
+      embed_url: streamUrl,
+      cover_art: ["art1","art2","art3","art4","art5","art6","art7","art8","art9"][Math.floor(Math.random()*9)],
+      note: "",
+      genre: "",
+      tags: [],
+      price_label: "name your price",
+      open_to: [],
+      published_at: Date.now(),
+    });
+    createdTrack = true;
   }
   saveState();
-  // route them to their fresh profile so they see the embed (or to /me)
-  location.hash = role === "artist" ? `#/artist/${handle}` : `#/me`;
+  // Artist with a track → land on the public profile page so they see the
+  // embed working. Otherwise → land on profile-edit so they can fill the rest.
+  location.hash = (role==="artist" && createdTrack) ? `#/artist/${handle}` : `#/me`;
   render();
 }
 
